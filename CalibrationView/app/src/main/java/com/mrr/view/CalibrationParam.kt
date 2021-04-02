@@ -8,14 +8,19 @@ class CalibrationParam {
     var context: Context? = null
 
     /**
-     * 普通刻度占组件宽度/高度的比例
+     * 普通刻度占组件减去padding之后的宽度/高度的比例
      */
-    var mCalibrationWidth = 0.3f
+    var mCalibrationWidth = 0.5f
 
     /**
-     * 刻度节点占组件宽度/高度的比例
+     * 刻度线的厚度
      */
-    var mCalibrationNodeWidth = 0.5f
+    var mCalibrationThick = 5f
+
+    /**
+     * 刻度节点占组件减去padding之后的宽度/高度的比例
+     */
+    var mCalibrationNodeWidth = 1f
 
     /**
      * 刻度样式,默认为线性样式
@@ -70,7 +75,7 @@ class CalibrationParam {
     /**
      * 已走过刻度颜色
      */
-    var mProgressColor = Color.parseColor("#FF6200EE");
+    var mProgressColor = Color.parseColor("#999999");
 
     var mProgressListener: ProgressListener? = null
 
@@ -78,6 +83,7 @@ class CalibrationParam {
     fun apply(param: CalibrationParam) {
         param.context = this.context
         param.mCalibrationWidth = this.mCalibrationWidth
+        param.mCalibrationThick = this.mCalibrationThick
         param.mCalibrationNodeWidth = this.mCalibrationNodeWidth
         param.mCalibrationStyle = this.mCalibrationStyle
         param.mCalibrationDirect = this.mCalibrationDirect

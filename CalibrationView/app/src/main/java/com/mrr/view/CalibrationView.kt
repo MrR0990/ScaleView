@@ -7,9 +7,19 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 
+/**
+ * 1. 画线性刻度
+ * - 解决初始状态游标位置问题
+ * - 设置一个背景颜色,看看是不是居中
+ * - 绘制刻度节点长度不同效果
+ *
+ * 2. 画线性游标
+ * - 游标按照节点最长的位置绘制
+ */
 class CalibrationView : View {
     val TAG = "CalibrationProgressView"
 
+    var mContext: Context? = null
     var mParam = CalibrationParam();
 
     var mProgressListener: CalibrationParam.ProgressListener? = null
@@ -25,7 +35,7 @@ class CalibrationView : View {
     /**
      * 每个刻度之间的间隔
      */
-    var mUnit = 0
+    var mUnitInterval = 0
 
     /**
      * 当前触摸到的位置
@@ -33,7 +43,7 @@ class CalibrationView : View {
     var mTouchY = 0f;
 
     /**
-     * 刻度画笔
+     * 默认刻度画笔
      */
     var mOriginColorPaint = Paint()
 
@@ -53,45 +63,35 @@ class CalibrationView : View {
     var isInit = false
 
 
-    constructor(context: Context?) : super(context, null)
+    constructor(context: Context?) : this(context, null)
 
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs, 0)
+    constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
 
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,
         defStyleAttr
     ) {
-        initData()
+        this.mContext = context
+        setBackgroundColor(resources.getColor(R.color.yellow))
     }
 
-    fun initData() {
-
-        if (!isInit) {
-            mOriginColorPaint.isAntiAlias = true
-            mOriginColorPaint.style = Paint.Style.STROKE
-            mOriginColorPaint.color = mParam.mDefaultColor
-            mOriginColorPaint.strokeWidth = 5f
-
-            mChangeColorPaint.isAntiAlias = true
-            mChangeColorPaint.style = Paint.Style.STROKE
-            mChangeColorPaint.color = mParam.mProgressColor
-            mChangeColorPaint.strokeWidth = 5f
-
-
-            mCursorPaint.isAntiAlias = true
-            mCursorPaint.style = Paint.Style.STROKE
-            mCursorPaint.strokeWidth = 1f
-
-            mProgressListener = mParam.mProgressListener
-
-            isInit = true
-        }
-
-    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+
+        if (isInit) {
+            return
+        }
+
+        initData(widthMeasureSpec, heightMeasureSpec)
+
+        isInit = true
+
+        Log.d(TAG, "onMeasure : mWidth : $mWidth mHeight : $mHeight")
+    }
+
+    private fun initData(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         mWidth = MeasureSpec.getSize(widthMeasureSpec)
         mHeight = MeasureSpec.getSize(heightMeasureSpec)
         mPaddingLeft = paddingLeft
@@ -99,12 +99,27 @@ class CalibrationView : View {
         mPaddingRight = paddingRight
         mPaddingBottom = paddingBottom
 
-        mUnit = (mHeight - mPaddingTop - mPaddingBottom) / mParam.mTotalProgress
-        mTouchY = (mPaddingTop + mUnit).toFloat()
+        mUnitInterval = (mHeight - mPaddingTop - mPaddingBottom) / mParam.mTotalProgress
+        mTouchY = (mPaddingTop + mUnitInterval).toFloat()
 
         setMeasuredDimension(mWidth, mHeight)
 
-        Log.d(TAG, "onMeasure : mWidth : $mWidth mHeight : $mHeight")
+        mOriginColorPaint.isAntiAlias = true
+        mOriginColorPaint.style = Paint.Style.STROKE
+        mOriginColorPaint.color = mParam.mDefaultColor
+        mOriginColorPaint.strokeWidth = mParam.mCalibrationThick
+
+        mChangeColorPaint.isAntiAlias = true
+        mChangeColorPaint.style = Paint.Style.STROKE
+        mChangeColorPaint.color = mParam.mProgressColor
+        mChangeColorPaint.strokeWidth = mParam.mCalibrationThick
+
+
+        mCursorPaint.isAntiAlias = true
+        mCursorPaint.style = Paint.Style.STROKE
+        mCursorPaint.strokeWidth = 1f
+
+        mProgressListener = mParam.mProgressListener
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -113,11 +128,11 @@ class CalibrationView : View {
         drawCalibration(canvas, mChangeColorPaint, 0, mTouchY.toInt())
         drawCalibration(canvas, mOriginColorPaint, mTouchY.toInt(), mHeight)
 
-        drawCursor(canvas)
+//        drawCursor(canvas)
     }
 
     /**
-     * 画刻度尺游标
+     * 画游标
      */
     private fun drawCursor(canvas: Canvas?) {
 
@@ -141,38 +156,51 @@ class CalibrationView : View {
         canvas?.drawPath(cursorpath, mCursorPaint)
     }
 
+
     /**
      * 画刻度
      */
     private fun drawCalibration(canvas: Canvas?, paint: Paint, from: Int, to: Int) {
 
-        canvas!!.save()
 
+        canvas!!.save()
 
         //这里就是最重要的分割canvas,可以分成上下左右的任何部分
         val rect = Rect(0, from, mWidth, to)
         canvas.clipRect(rect)
 
 
-        var lineLength = mWidth / 2
-        var stopY = mPaddingTop + mUnit
+        //第一个节点是一个刻度节点
+        var lineLength = (mWidth - mPaddingLeft - mPaddingRight) * mParam.mCalibrationNodeWidth
+
+
+        var startX = (mWidth - lineLength) / 2 + mPaddingLeft
+        var startY = mPaddingTop
+
+        var stopX = startX + lineLength
+        var stopY = startY
 
         for (index in 0..mParam.mTotalProgress) {
-            canvas?.drawLine(
-                (lineLength / 2).toFloat(),
-                stopY.toFloat(),
-                (lineLength / 2 + lineLength).toFloat(),
-                stopY.toFloat(),
-                paint
-            )
-            stopY += mUnit
-
             if (stopY > to) {
                 break
             }
+
+            canvas?.drawLine(
+                startX,
+                startY.toFloat(),
+                stopX,
+                stopY.toFloat(),
+                paint
+            )
+
+            startY += mUnitInterval
+            stopY += mUnitInterval
+
+            Log.d(TAG, "index : $index ")
         }
 
         canvas.restore()
+
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -182,13 +210,13 @@ class CalibrationView : View {
 
                 mTouchY = event.y
 
-                if (mTouchY < mPaddingTop + mUnit) {
-                    mTouchY = (mPaddingTop + mUnit).toFloat()
+                if (mTouchY < mPaddingTop + mUnitInterval) {
+                    mTouchY = (mPaddingTop + mUnitInterval).toFloat()
                 }
 
-                if (mTouchY > mPaddingTop + (mUnit * (mParam.mTotalProgress + 1))) {
+                if (mTouchY > mPaddingTop + (mUnitInterval * (mParam.mTotalProgress + 1))) {
                     mTouchY =
-                        (mPaddingTop + (mUnit * (mParam.mTotalProgress + 1))).toFloat()
+                        (mPaddingTop + (mUnitInterval * (mParam.mTotalProgress + 1))).toFloat()
                 }
             }
         }
