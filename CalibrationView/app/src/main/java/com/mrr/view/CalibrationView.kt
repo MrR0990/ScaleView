@@ -99,7 +99,8 @@ class CalibrationView : View {
         mPaddingRight = paddingRight
         mPaddingBottom = paddingBottom
 
-        mUnitInterval = (mHeight - mPaddingTop - mPaddingBottom) / mParam.mTotalProgress
+        mUnitInterval =
+            ((mHeight - mPaddingTop - mPaddingBottom - (mParam.mCalibrationThick * (mParam.mTotalProgress + 1))) / mParam.mTotalProgress).toInt()
         mTouchY = (mPaddingTop + mUnitInterval).toFloat()
 
         setMeasuredDimension(mWidth, mHeight)
