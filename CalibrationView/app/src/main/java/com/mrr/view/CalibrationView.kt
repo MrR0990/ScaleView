@@ -33,9 +33,19 @@ class CalibrationView : View {
     var mPaddingBottom = 0
 
     /**
-     * 每个刻度之间的间隔
+     * 刻度线一半的厚度,方便计算
+     */
+    var mHalfCalibration = 0f;
+
+    /**
+     * 刻度之间的缝隙大小
      */
     var mUnitInterval = 0
+
+    /**
+     * 横向空间大小
+     */
+    var mHorizontalInterval = 0
 
     /**
      * 当前触摸到的位置
@@ -92,44 +102,93 @@ class CalibrationView : View {
     }
 
     private fun initData(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+
         mWidth = MeasureSpec.getSize(widthMeasureSpec)
         mHeight = MeasureSpec.getSize(heightMeasureSpec)
+        setMeasuredDimension(mWidth, mHeight)
+
+        initPaint()
+
         mPaddingLeft = paddingLeft
         mPaddingTop = paddingTop
         mPaddingRight = paddingRight
         mPaddingBottom = paddingBottom
 
-        mUnitInterval =
-            ((mHeight - mPaddingTop - mPaddingBottom - (mParam.mCalibrationThick * (mParam.mTotalProgress + 1))) / mParam.mTotalProgress).toInt()
+        //总共的绘制空间
+        var drawSpace = mHeight - mPaddingTop - mPaddingBottom
+        //刻度线本身占用的空间
+        var calibrationSpace = mParam.mCalibrationThick * (mParam.mTotalProgress + 1)
+        //刻度之间的缝隙大小
+        mUnitInterval = ((drawSpace - calibrationSpace) / mParam.mTotalProgress).toInt()
+
+        mHorizontalInterval = mWidth - mPaddingLeft - mPaddingRight
+
+        mHalfCalibration = mParam.mCalibrationThick / 2
+
         mTouchY = (mPaddingTop + mUnitInterval).toFloat()
-
-        setMeasuredDimension(mWidth, mHeight)
-
-        mOriginColorPaint.isAntiAlias = true
-        mOriginColorPaint.style = Paint.Style.STROKE
-        mOriginColorPaint.color = mParam.mDefaultColor
-        mOriginColorPaint.strokeWidth = mParam.mCalibrationThick
-
-        mChangeColorPaint.isAntiAlias = true
-        mChangeColorPaint.style = Paint.Style.STROKE
-        mChangeColorPaint.color = mParam.mProgressColor
-        mChangeColorPaint.strokeWidth = mParam.mCalibrationThick
-
-
-        mCursorPaint.isAntiAlias = true
-        mCursorPaint.style = Paint.Style.STROKE
-        mCursorPaint.strokeWidth = 1f
 
         mProgressListener = mParam.mProgressListener
     }
 
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        drawCalibration(canvas, mChangeColorPaint, 0, mTouchY.toInt())
-        drawCalibration(canvas, mOriginColorPaint, mTouchY.toInt(), mHeight)
+//        drawCalibration(canvas, mChangeColorPaint, 0, mTouchY.toInt())
+        drawCalibration(canvas, mOriginColorPaint, 0, mHeight)
 
 //        drawCursor(canvas)
+    }
+
+    /**
+     * 画刻度
+     */
+    private fun drawCalibration(canvas: Canvas?, paint: Paint, from: Int, to: Int) {
+
+
+        canvas!!.save()
+
+        //这里就是最重要的分割canvas,可以分成上下左右的任何部分
+        val rect = Rect(0, from, mWidth, to)
+        canvas.clipRect(rect)
+
+
+        //第一个节点是一个刻度节点
+        var nodeLength = mHorizontalInterval * mParam.mCalibrationNodeWidth
+
+        //普通刻度占组件减去padding之后的宽度/高度
+        var linelength = mHorizontalInterval * mParam.mCalibrationWidth
+
+        var nodeStartX = (mWidth - nodeLength) / 2
+        var nodeStopX = nodeStartX + nodeLength
+
+        var startX = (mWidth - linelength) / 2
+        var stopX = startX + linelength
+
+        var startY = mPaddingTop + mHalfCalibration
+        var stopY = startY
+
+        for (index in 0..mParam.mTotalProgress) {
+            if (stopY > to) {
+                break
+            }
+
+            canvas?.drawLine(
+                if (index % mParam.mUnitCalibration == 0) nodeStartX.toFloat() else startX,
+                startY.toFloat(),
+                if (index % mParam.mUnitCalibration == 0) nodeStopX.toFloat() else stopX,
+                stopY.toFloat(),
+                paint
+            )
+
+            startY += (mUnitInterval + mParam.mCalibrationThick)
+            stopY += (mUnitInterval + mParam.mCalibrationThick)
+
+            Log.d(TAG, "index : $index ")
+        }
+
+        canvas.restore()
+
     }
 
     /**
@@ -158,52 +217,6 @@ class CalibrationView : View {
     }
 
 
-    /**
-     * 画刻度
-     */
-    private fun drawCalibration(canvas: Canvas?, paint: Paint, from: Int, to: Int) {
-
-
-        canvas!!.save()
-
-        //这里就是最重要的分割canvas,可以分成上下左右的任何部分
-        val rect = Rect(0, from, mWidth, to)
-        canvas.clipRect(rect)
-
-
-        //第一个节点是一个刻度节点
-        var lineLength = (mWidth - mPaddingLeft - mPaddingRight) * mParam.mCalibrationNodeWidth
-
-
-        var startX = (mWidth - lineLength) / 2 + mPaddingLeft
-        var startY = mPaddingTop
-
-        var stopX = startX + lineLength
-        var stopY = startY
-
-        for (index in 0..mParam.mTotalProgress) {
-            if (stopY > to) {
-                break
-            }
-
-            canvas?.drawLine(
-                startX,
-                startY.toFloat(),
-                stopX,
-                stopY.toFloat(),
-                paint
-            )
-
-            startY += mUnitInterval
-            stopY += mUnitInterval
-
-            Log.d(TAG, "index : $index ")
-        }
-
-        canvas.restore()
-
-    }
-
     override fun onTouchEvent(event: MotionEvent?): Boolean {
 
         when (event?.action) {
@@ -230,4 +243,20 @@ class CalibrationView : View {
     }
 
 
+    private fun initPaint() {
+        mOriginColorPaint.isAntiAlias = true
+        mOriginColorPaint.style = Paint.Style.STROKE
+        mOriginColorPaint.color = mParam.mDefaultColor
+        mOriginColorPaint.strokeWidth = mParam.mCalibrationThick
+
+        mChangeColorPaint.isAntiAlias = true
+        mChangeColorPaint.style = Paint.Style.STROKE
+        mChangeColorPaint.color = mParam.mProgressColor
+        mChangeColorPaint.strokeWidth = mParam.mCalibrationThick
+
+
+        mCursorPaint.isAntiAlias = true
+        mCursorPaint.style = Paint.Style.STROKE
+        mCursorPaint.strokeWidth = 1f
+    }
 }

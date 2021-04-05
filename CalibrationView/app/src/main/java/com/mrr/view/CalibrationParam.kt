@@ -20,7 +20,7 @@ class CalibrationParam {
     /**
      * 刻度节点占组件减去padding之后的宽度/高度的比例
      */
-    var mCalibrationNodeWidth = 1f
+    var mCalibrationNodeWidth = 0.7f
 
     /**
      * 刻度样式,默认为线性样式
@@ -60,7 +60,7 @@ class CalibrationParam {
     /**
      * 总刻度
      */
-    var mTotalProgress = 50
+    var mTotalProgress = 30
 
     /**
      * 单位刻度,主要是用来控制节点刻度
