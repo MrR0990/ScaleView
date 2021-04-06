@@ -6,9 +6,9 @@
 
         <attr name="calibrationWidth" format="float" />
 
-        <attr name="calibrationThick" format="dimension" />
-
         <attr name="calibrationNodeWidth" format="float" />
+        
+        <attr name="calibrationThick" format="dimension" />
 
         <attr name="calibrationDirect">
             <enum name="horizontal" value="0" />

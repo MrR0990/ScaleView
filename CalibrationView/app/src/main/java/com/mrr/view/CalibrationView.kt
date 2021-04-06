@@ -36,7 +36,17 @@ class CalibrationView : View {
     /**
      * 刻度之间的缝隙大小
      */
-    var mUnitInterval = 0f
+    var mPerInterval = 0f
+
+    /**
+     * 圆形刻度之间的角度
+     */
+    var mPreAngle = 0f
+
+    /**
+     * 圆形刻度的半径
+     */
+    var mCircleRadius = 0f
 
     /**
      * 每个一个刻度最长可绘制的空间
@@ -68,6 +78,11 @@ class CalibrationView : View {
      */
     var isInit = false
 
+    var mCurrentRotationAngle = -90f
+
+    // 屏幕最中心的位置
+    private var mCenterX = 0f
+    private var mCenterY = 0f
 
     constructor(context: Context?) : this(context, null)
 
@@ -116,10 +131,10 @@ class CalibrationView : View {
             typeArray!!.getDimension(R.styleable.CalibrationView_cursorGap, 5f)
 
         mParam.mTotalProgress =
-            typeArray!!.getInt(R.styleable.CalibrationView_totalProgress, 30)
+            typeArray!!.getInt(R.styleable.CalibrationView_totalProgress, 60)
 
         mParam.mUnitCalibration =
-            typeArray!!.getInt(R.styleable.CalibrationView_unitCalibration, 5)
+            typeArray!!.getInt(R.styleable.CalibrationView_unitCalibration, 10)
 
         mParam.mDefaultColor =
             typeArray!!.getColor(R.styleable.CalibrationView_defaultColor, Color.DKGRAY)
@@ -128,49 +143,6 @@ class CalibrationView : View {
             typeArray!!.getColor(R.styleable.CalibrationView_progressColor, Color.DKGRAY)
 
         typeArray.recycle()
-        setBackgroundColor(resources.getColor(R.color.yellow))
-    }
-
-    fun setCalibrationStyle(style: Int) {
-        when (style) {
-            CalibrationStyle.LINE.value -> {
-                mParam.mCalibrationStyle = CalibrationStyle.LINE
-            }
-            CalibrationStyle.CIRCLE.value -> {
-                mParam.mCalibrationStyle = CalibrationStyle.CIRCLE
-            }
-        }
-
-    }
-
-    fun setCalibrationDirect(direct: Int) {
-        when (direct) {
-            CalibrationStyle.HORIZONTAL.value -> {
-                mParam.mCalibrationDirect = CalibrationStyle.HORIZONTAL
-            }
-            CalibrationStyle.VERTICAL.value -> {
-                mParam.mCalibrationDirect = CalibrationStyle.VERTICAL
-            }
-        }
-
-    }
-
-    fun setCursorLoc(loc: Int) {
-        when (loc) {
-            CalibrationStyle.LEFT.value -> {
-                mParam.mCursorLoc = CalibrationStyle.LEFT
-            }
-            CalibrationStyle.RIGHT.value -> {
-                mParam.mCursorLoc = CalibrationStyle.RIGHT
-            }
-            CalibrationStyle.INSIDE.value -> {
-                mParam.mCursorLoc = CalibrationStyle.INSIDE
-            }
-            CalibrationStyle.OUTSIDE.value -> {
-                mParam.mCursorLoc = CalibrationStyle.OUTSIDE
-            }
-        }
-
     }
 
 
@@ -207,25 +179,33 @@ class CalibrationView : View {
                 //总共的绘制空间
                 var drawSpace = mHeight - mPaddingTop - mPaddingBottom
                 //刻度之间的缝隙大小
-                mUnitInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
+                mPerInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
                 //每个一个刻度最长可绘制的空间
                 mInterval = mWidth - paddingLeft - paddingRight
 
             } else if (mParam.mCalibrationDirect == CalibrationStyle.HORIZONTAL) {
 
                 var drawSpace = mWidth - mPaddingLeft - paddingRight
-                mUnitInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
+                mPerInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
                 mInterval = mHeight - paddingTop - paddingBottom
             }
 
         } else if (mParam.mCalibrationStyle == CalibrationStyle.CIRCLE) {
+            mPreAngle = (Math.PI * 2 / mParam.mTotalProgress).toFloat()
+            mCircleRadius =
+                Math.min(
+                    mWidth - paddingLeft - paddingRight,
+                    mHeight - paddingTop - paddingBottom
+                ) / 2
 
+            mCenterX = mWidth / 2
+            mCenterY = mHeight / 2
         }
 
 
         mHalfCalibration = mParam.mCalibrationThick / 2
 
-        mTouchY = (mPaddingTop + mUnitInterval).toFloat()
+        mTouchY = (mPaddingTop + mPerInterval).toFloat()
 
         mProgressListener = mParam.mProgressListener
     }
@@ -242,15 +222,67 @@ class CalibrationView : View {
 
         canvas?.drawRoundRect(rect, 0f, 0f, mCursorPaint)
 //        drawCalibration(canvas, mChangeColorPaint, 0, mTouchY.toInt())
-        drawCalibration(canvas, mOriginColorPaint, 0f, mHeight)
+
+        if (mParam.mCalibrationStyle == CalibrationStyle.LINE) {
+            drawLineCalibration(canvas, mOriginColorPaint, 0f, mHeight)
+        } else if (mParam.mCalibrationStyle == CalibrationStyle.CIRCLE) {
+            drawCircleCalibration(canvas, mOriginColorPaint, 0f, mHeight)
+        }
+
 
 //        drawCursor(canvas)
     }
 
+    private fun drawCircleCalibration(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
+
+        canvas?.drawCircle(mWidth / 2, mHeight / 2, mCircleRadius, mCursorPaint)
+
+        //节点刻度和普通刻度的长度差
+        var lengthDiff =
+            ((mCircleRadius * mParam.mCalibrationNodeWidth) - (mCircleRadius * mParam.mCalibrationWidth)) / 2
+
+        var startX = 0f
+        var stopX = 0f
+        var startY = 0f
+        var stopY = 0f
+
+        for (index in 0..mParam.mTotalProgress - 1) {
+            // 初始角度 + 当前旋转的角度
+            val angle = (index * mPreAngle).toDouble()
+
+            //从外往内绘制
+            if (index % mParam.mUnitCalibration == 0) {
+                startX = (mCenterX + mCircleRadius * Math.cos(angle)).toFloat()
+                startY = (mCenterY + mCircleRadius * Math.sin(angle)).toFloat()
+                stopX = (mCenterX + (mCircleRadius - mCircleRadius * mParam.mCalibrationNodeWidth)
+                        * Math.cos(angle)).toFloat()
+                stopY = (mCenterY + (mCircleRadius - mCircleRadius * mParam.mCalibrationNodeWidth)
+                        * Math.sin(angle)).toFloat()
+            } else {
+                startX = (mCenterX + (mCircleRadius - lengthDiff)
+                        * Math.cos(angle)).toFloat()
+                startY = (mCenterY + (mCircleRadius - lengthDiff) * Math.sin(angle)).toFloat()
+                stopX =
+                    (mCenterX + (mCircleRadius - mCircleRadius * mParam.mCalibrationWidth - lengthDiff)
+                            * Math.cos(angle)).toFloat()
+                stopY =
+                    (mCenterY + (mCircleRadius - mCircleRadius * mParam.mCalibrationWidth - lengthDiff)
+                            * Math.sin(angle)).toFloat()
+            }
+
+
+            canvas!!.drawLine(
+                startX, startY, stopX, stopY,
+                mOriginColorPaint
+            )
+
+        }
+    }
+
     /**
-     * 画刻度
+     * 画线性的刻度
      */
-    private fun drawCalibration(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
+    private fun drawLineCalibration(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
 
 
         canvas!!.save()
@@ -303,8 +335,8 @@ class CalibrationView : View {
                     paint
                 )
 
-                startY += (mUnitInterval + mParam.mCalibrationThick)
-                stopY += (mUnitInterval + mParam.mCalibrationThick)
+                startY += (mPerInterval + mParam.mCalibrationThick)
+                stopY += (mPerInterval + mParam.mCalibrationThick)
 
                 Log.d(TAG, "index : $index ")
             }
@@ -330,13 +362,11 @@ class CalibrationView : View {
                     paint
                 )
 
-                nodeStartX += (mUnitInterval + mParam.mCalibrationThick)
-                nodeStopX += (mUnitInterval + mParam.mCalibrationThick)
+                nodeStartX += (mPerInterval + mParam.mCalibrationThick)
+                nodeStopX += (mPerInterval + mParam.mCalibrationThick)
 
             }
         }
-
-
 
         canvas.restore()
 
@@ -375,13 +405,13 @@ class CalibrationView : View {
 
                 mTouchY = event.y
 
-                if (mTouchY < mPaddingTop + mUnitInterval) {
-                    mTouchY = (mPaddingTop + mUnitInterval).toFloat()
+                if (mTouchY < mPaddingTop + mPerInterval) {
+                    mTouchY = (mPaddingTop + mPerInterval).toFloat()
                 }
 
-                if (mTouchY > mPaddingTop + (mUnitInterval * (mParam.mTotalProgress + 1))) {
+                if (mTouchY > mPaddingTop + (mPerInterval * (mParam.mTotalProgress + 1))) {
                     mTouchY =
-                        (mPaddingTop + (mUnitInterval * (mParam.mTotalProgress + 1))).toFloat()
+                        (mPaddingTop + (mPerInterval * (mParam.mTotalProgress + 1))).toFloat()
                 }
             }
         }
@@ -409,5 +439,47 @@ class CalibrationView : View {
         mCursorPaint.isAntiAlias = true
         mCursorPaint.style = Paint.Style.STROKE
         mCursorPaint.strokeWidth = 1f
+    }
+
+    fun setCalibrationStyle(style: Int) {
+        when (style) {
+            CalibrationStyle.LINE.value -> {
+                mParam.mCalibrationStyle = CalibrationStyle.LINE
+            }
+            CalibrationStyle.CIRCLE.value -> {
+                mParam.mCalibrationStyle = CalibrationStyle.CIRCLE
+            }
+        }
+
+    }
+
+    fun setCalibrationDirect(direct: Int) {
+        when (direct) {
+            CalibrationStyle.HORIZONTAL.value -> {
+                mParam.mCalibrationDirect = CalibrationStyle.HORIZONTAL
+            }
+            CalibrationStyle.VERTICAL.value -> {
+                mParam.mCalibrationDirect = CalibrationStyle.VERTICAL
+            }
+        }
+
+    }
+
+    fun setCursorLoc(loc: Int) {
+        when (loc) {
+            CalibrationStyle.LEFT.value -> {
+                mParam.mCursorLoc = CalibrationStyle.LEFT
+            }
+            CalibrationStyle.RIGHT.value -> {
+                mParam.mCursorLoc = CalibrationStyle.RIGHT
+            }
+            CalibrationStyle.INSIDE.value -> {
+                mParam.mCursorLoc = CalibrationStyle.INSIDE
+            }
+            CalibrationStyle.OUTSIDE.value -> {
+                mParam.mCursorLoc = CalibrationStyle.OUTSIDE
+            }
+        }
+
     }
 }
