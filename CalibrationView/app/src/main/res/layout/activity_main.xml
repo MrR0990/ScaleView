@@ -7,10 +7,30 @@
     tools:context=".MainActivity">
 
     <com.mrr.view.CalibrationView
-        android:id="@+id/CalibrationProgressView"
-        android:layout_width="40dp"
-        android:layout_height="500dp"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
         android:padding="5dp"
+        app:calibrationDirect="horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.mrr.view.CalibrationView
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:padding="5dp"
+        app:calibrationDirect="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+
+    <com.mrr.view.CalibrationView
+        android:layout_width="40dp"
+        android:layout_height="400dp"
+        android:padding="5dp"
+        app:calibrationDirect="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -18,8 +38,9 @@
 
     <com.mrr.view.CalibrationView
         android:layout_width="40dp"
-        android:layout_height="500dp"
+        android:layout_height="400dp"
         android:padding="5dp"
+        app:calibrationDirect="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

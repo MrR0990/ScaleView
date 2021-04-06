@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <declare-styleable name="CalibrationView">
+
+        <attr name="calibrationWidth" format="float" />
+
+        <attr name="calibrationThick" format="dimension" />
+
+        <attr name="calibrationNodeWidth" format="float" />
+
+        <attr name="calibrationDirect">
+            <enum name="horizontal" value="0" />
+            <enum name="vertical" value="1" />
+        </attr>
+
+        <attr name="calibrationStyle">
+            <enum name="line" value="2" />
+            <enum name="circle" value="3" />
+        </attr>
+
+        <attr name="cursorLoc">
+            <enum name="left" value="4" />
+            <enum name="right" value="5" />
+            <enum name="inside" value="6" />
+            <enum name="outside" value="7" />
+        </attr>
+
+        <attr name="cursorWidth" format="float" />
+
+        <attr name="cursorGap" format="dimension" />
+
+        <attr name="totalProgress" format="integer" />
+
+        <attr name="unitCalibration" format="integer" />
+
+        <attr name="defaultColor" format="color" />
+
+        <attr name="progressColor" format="color" />
+
+    </declare-styleable>
+
+</resources>

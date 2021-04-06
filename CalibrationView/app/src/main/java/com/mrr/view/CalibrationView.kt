@@ -43,9 +43,9 @@ class CalibrationView : View {
     var mUnitInterval = 0
 
     /**
-     * 横向空间大小
+     * 每个一个刻度最长可绘制的空间
      */
-    var mHorizontalInterval = 0
+    var mInterval = 0
 
     /**
      * 当前触摸到的位置
@@ -83,7 +83,98 @@ class CalibrationView : View {
         defStyleAttr
     ) {
         this.mContext = context
+        var typeArray = context?.obtainStyledAttributes(attrs, R.styleable.CalibrationView)
+
+        mParam.mCalibrationWidth =
+            typeArray!!.getFloat(R.styleable.CalibrationView_calibrationWidth, 0.5f)
+
+
+        mParam.mCalibrationNodeWidth =
+            typeArray!!.getFloat(R.styleable.CalibrationView_calibrationNodeWidth, 0.7f)
+
+        mParam.mCalibrationThick =
+            typeArray!!.getDimension(R.styleable.CalibrationView_calibrationThick, 5f)
+
+
+        var style = typeArray!!.getInt(R.styleable.CalibrationView_calibrationStyle, -1)
+        if (style > 0) {
+            setCalibrationStyle(style)
+        }
+
+        var direct =
+            typeArray!!.getInt(R.styleable.CalibrationView_calibrationDirect, -1)
+        if (direct > 0) {
+            setCalibrationDirect(direct)
+        }
+
+        var cursorLoc =
+            typeArray!!.getInt(R.styleable.CalibrationView_cursorLoc, -1)
+        if (cursorLoc > 0) {
+            setCursorLoc(cursorLoc)
+        }
+
+        mParam.mCursorWidth =
+            typeArray!!.getDimension(R.styleable.CalibrationView_cursorWidth, 20f)
+
+        mParam.mCursorGap =
+            typeArray!!.getDimension(R.styleable.CalibrationView_cursorGap, 5f)
+
+        mParam.mTotalProgress =
+            typeArray!!.getInt(R.styleable.CalibrationView_totalProgress, 50)
+
+        mParam.mUnitCalibration =
+            typeArray!!.getInt(R.styleable.CalibrationView_unitCalibration, 10)
+
+        mParam.mDefaultColor =
+            typeArray!!.getColor(R.styleable.CalibrationView_defaultColor, Color.DKGRAY)
+
+        mParam.mProgressColor =
+            typeArray!!.getColor(R.styleable.CalibrationView_progressColor, Color.DKGRAY)
+
+        typeArray.recycle()
         setBackgroundColor(resources.getColor(R.color.yellow))
+    }
+
+    fun setCalibrationStyle(style: Int) {
+        when (style) {
+            CalibrationStyle.LINE.value -> {
+                mParam.mCalibrationStyle = CalibrationStyle.LINE
+            }
+            CalibrationStyle.CIRCLE.value -> {
+                mParam.mCalibrationStyle = CalibrationStyle.CIRCLE
+            }
+        }
+
+    }
+
+    fun setCalibrationDirect(direct: Int) {
+        when (direct) {
+            CalibrationStyle.HORIZONTAL.value -> {
+                mParam.mCalibrationDirect = CalibrationStyle.HORIZONTAL
+            }
+            CalibrationStyle.VERTICAL.value -> {
+                mParam.mCalibrationDirect = CalibrationStyle.VERTICAL
+            }
+        }
+
+    }
+
+    fun setCursorLoc(loc: Int) {
+        when (loc) {
+            CalibrationStyle.LEFT.value -> {
+                mParam.mCursorLoc = CalibrationStyle.LEFT
+            }
+            CalibrationStyle.RIGHT.value -> {
+                mParam.mCursorLoc = CalibrationStyle.RIGHT
+            }
+            CalibrationStyle.INSIDE.value -> {
+                mParam.mCursorLoc = CalibrationStyle.INSIDE
+            }
+            CalibrationStyle.OUTSIDE.value -> {
+                mParam.mCursorLoc = CalibrationStyle.OUTSIDE
+            }
+        }
+
     }
 
 
@@ -114,14 +205,31 @@ class CalibrationView : View {
         mPaddingRight = paddingRight
         mPaddingBottom = paddingBottom
 
-        //总共的绘制空间
-        var drawSpace = mHeight - mPaddingTop - mPaddingBottom
-        //刻度线本身占用的空间
-        var calibrationSpace = mParam.mCalibrationThick * (mParam.mTotalProgress + 1)
-        //刻度之间的缝隙大小
-        mUnitInterval = ((drawSpace - calibrationSpace) / mParam.mTotalProgress).toInt()
+        if (mParam.mCalibrationStyle == CalibrationStyle.LINE) {
 
-        mHorizontalInterval = mWidth - mPaddingLeft - mPaddingRight
+            //刻度线本身占用的空间
+            var calibrationSpace = mParam.mCalibrationThick * (mParam.mTotalProgress + 1)
+
+            if (mParam.mCalibrationDirect == CalibrationStyle.VERTICAL) {
+
+                //总共的绘制空间
+                var drawSpace = mHeight - mPaddingTop - mPaddingBottom
+                //刻度之间的缝隙大小
+                mUnitInterval = ((drawSpace - calibrationSpace) / mParam.mTotalProgress).toInt()
+                //每个一个刻度最长可绘制的空间
+                mInterval = mWidth - mPaddingLeft - mPaddingRight
+
+            } else if (mParam.mCalibrationDirect == CalibrationStyle.HORIZONTAL) {
+
+                var drawSpace = mWidth - mPaddingLeft - paddingRight
+                mUnitInterval = ((drawSpace - calibrationSpace) / mParam.mTotalProgress).toInt()
+                mInterval = mHeight - mPaddingTop - mPaddingBottom
+            }
+
+        } else if (mParam.mCalibrationStyle == CalibrationStyle.CIRCLE) {
+
+        }
+
 
         mHalfCalibration = mParam.mCalibrationThick / 2
 
@@ -154,38 +262,82 @@ class CalibrationView : View {
 
 
         //第一个节点是一个刻度节点
-        var nodeLength = mHorizontalInterval * mParam.mCalibrationNodeWidth
+        var nodeLength = mInterval * mParam.mCalibrationNodeWidth
 
         //普通刻度占组件减去padding之后的宽度/高度
-        var linelength = mHorizontalInterval * mParam.mCalibrationWidth
+        var linelength = mInterval * mParam.mCalibrationWidth
 
-        var nodeStartX = (mWidth - nodeLength) / 2
-        var nodeStopX = nodeStartX + nodeLength
+        var nodeStartX = 0f
+        var nodeStopX = 0f
 
-        var startX = (mWidth - linelength) / 2
-        var stopX = startX + linelength
+        var nodeStartY = 0f
+        var nodeStopY = 0f
 
-        var startY = mPaddingTop + mHalfCalibration
-        var stopY = startY
+        var startX = 0f
+        var stopX = 0f
 
-        for (index in 0..mParam.mTotalProgress) {
-            if (stopY > to) {
-                break
+        var startY = 0f
+        var stopY = 0f
+
+
+        if (mParam.mCalibrationDirect == CalibrationStyle.VERTICAL) {
+
+            nodeStartX = (mWidth - nodeLength) / 2
+            nodeStopX = nodeStartX + nodeLength
+
+            startX = (mWidth - linelength) / 2
+            stopX = startX + linelength
+
+            startY = mPaddingTop + mHalfCalibration
+            stopY = startY
+
+            for (index in 0..mParam.mTotalProgress) {
+                if (stopY > to) {
+                    break
+                }
+
+                canvas?.drawLine(
+                    if (index % mParam.mUnitCalibration == 0) nodeStartX.toFloat() else startX,
+                    startY.toFloat(),
+                    if (index % mParam.mUnitCalibration == 0) nodeStopX.toFloat() else stopX,
+                    stopY.toFloat(),
+                    paint
+                )
+
+                startY += (mUnitInterval + mParam.mCalibrationThick)
+                stopY += (mUnitInterval + mParam.mCalibrationThick)
+
+                Log.d(TAG, "index : $index ")
             }
 
-            canvas?.drawLine(
-                if (index % mParam.mUnitCalibration == 0) nodeStartX.toFloat() else startX,
-                startY.toFloat(),
-                if (index % mParam.mUnitCalibration == 0) nodeStopX.toFloat() else stopX,
-                stopY.toFloat(),
-                paint
-            )
+        } else if (mParam.mCalibrationDirect == CalibrationStyle.HORIZONTAL) {
 
-            startY += (mUnitInterval + mParam.mCalibrationThick)
-            stopY += (mUnitInterval + mParam.mCalibrationThick)
+            nodeStartX = paddingLeft + mHalfCalibration
+            nodeStopX = nodeStartX
 
-            Log.d(TAG, "index : $index ")
+            nodeStartY = (mHeight - nodeLength) / 2
+            nodeStopY = nodeStartY + nodeLength
+
+            startY = (mHeight - linelength) / 2
+            stopY = startY + linelength
+
+            for (index in 0..mParam.mTotalProgress) {
+
+                canvas?.drawLine(
+                    nodeStartX,
+                    if (index % mParam.mUnitCalibration == 0) nodeStartY.toFloat() else startY,
+                    nodeStopX,
+                    if (index % mParam.mUnitCalibration == 0) nodeStopY.toFloat() else stopY,
+                    paint
+                )
+
+                nodeStartX += (mUnitInterval + mParam.mCalibrationThick)
+                nodeStopX += (mUnitInterval + mParam.mCalibrationThick)
+
+            }
         }
+
+
 
         canvas.restore()
 

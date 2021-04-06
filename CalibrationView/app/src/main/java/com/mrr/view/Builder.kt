@@ -46,13 +46,13 @@ class Builder {
     }
 
 
-    fun setCursorWidth(var1: Int): Builder {
+    fun setCursorWidth(var1: Float): Builder {
         p.mCursorWidth = var1
         return this
     }
 
 
-    fun setCursorGap(var1: Int): Builder {
+    fun setCursorGap(var1: Float): Builder {
         p.mCursorGap = var1
         return this
     }

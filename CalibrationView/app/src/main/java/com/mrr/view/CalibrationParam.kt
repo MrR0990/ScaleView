@@ -13,14 +13,15 @@ class CalibrationParam {
     var mCalibrationWidth = 0.5f
 
     /**
-     * 刻度线的厚度
-     */
-    var mCalibrationThick = 5f
-
-    /**
      * 刻度节点占组件减去padding之后的宽度/高度的比例
      */
     var mCalibrationNodeWidth = 0.7f
+
+    /**
+     * 刻度线的粗细
+     */
+    var mCalibrationThick = 5f
+
 
     /**
      * 刻度样式,默认为线性样式
@@ -50,17 +51,17 @@ class CalibrationParam {
      *
      * 配置的时候需要注意游标和组件宽度之间的关系,留足够的空间
      */
-    var mCursorWidth = 20
+    var mCursorWidth = 20f
 
     /**
      * 游标和刻度之间的间隙
      */
-    var mCursorGap = 5
+    var mCursorGap = 5f
 
     /**
      * 总刻度
      */
-    var mTotalProgress = 30
+    var mTotalProgress = 50
 
     /**
      * 单位刻度,主要是用来控制节点刻度
