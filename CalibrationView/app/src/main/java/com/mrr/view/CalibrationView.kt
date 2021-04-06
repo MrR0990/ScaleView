@@ -24,13 +24,9 @@ class CalibrationView : View {
 
     var mProgressListener: CalibrationParam.ProgressListener? = null
 
-    var mWidth = 0
-    var mHeight = 0
+    var mWidth = 0f
+    var mHeight = 0f
 
-    var mPaddingLeft = 0
-    var mPaddingTop = 0
-    var mPaddingRight = 0
-    var mPaddingBottom = 0
 
     /**
      * 刻度线一半的厚度,方便计算
@@ -40,12 +36,12 @@ class CalibrationView : View {
     /**
      * 刻度之间的缝隙大小
      */
-    var mUnitInterval = 0
+    var mUnitInterval = 0f
 
     /**
      * 每个一个刻度最长可绘制的空间
      */
-    var mInterval = 0
+    var mInterval = 0f
 
     /**
      * 当前触摸到的位置
@@ -120,10 +116,10 @@ class CalibrationView : View {
             typeArray!!.getDimension(R.styleable.CalibrationView_cursorGap, 5f)
 
         mParam.mTotalProgress =
-            typeArray!!.getInt(R.styleable.CalibrationView_totalProgress, 50)
+            typeArray!!.getInt(R.styleable.CalibrationView_totalProgress, 30)
 
         mParam.mUnitCalibration =
-            typeArray!!.getInt(R.styleable.CalibrationView_unitCalibration, 10)
+            typeArray!!.getInt(R.styleable.CalibrationView_unitCalibration, 5)
 
         mParam.mDefaultColor =
             typeArray!!.getColor(R.styleable.CalibrationView_defaultColor, Color.DKGRAY)
@@ -194,16 +190,12 @@ class CalibrationView : View {
 
     private fun initData(widthMeasureSpec: Int, heightMeasureSpec: Int) {
 
-        mWidth = MeasureSpec.getSize(widthMeasureSpec)
-        mHeight = MeasureSpec.getSize(heightMeasureSpec)
-        setMeasuredDimension(mWidth, mHeight)
+        mWidth = MeasureSpec.getSize(widthMeasureSpec).toFloat()
+        mHeight = MeasureSpec.getSize(heightMeasureSpec).toFloat()
+        setMeasuredDimension(mWidth.toInt(), mHeight.toInt())
 
         initPaint()
 
-        mPaddingLeft = paddingLeft
-        mPaddingTop = paddingTop
-        mPaddingRight = paddingRight
-        mPaddingBottom = paddingBottom
 
         if (mParam.mCalibrationStyle == CalibrationStyle.LINE) {
 
@@ -215,15 +207,15 @@ class CalibrationView : View {
                 //总共的绘制空间
                 var drawSpace = mHeight - mPaddingTop - mPaddingBottom
                 //刻度之间的缝隙大小
-                mUnitInterval = ((drawSpace - calibrationSpace) / mParam.mTotalProgress).toInt()
+                mUnitInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
                 //每个一个刻度最长可绘制的空间
-                mInterval = mWidth - mPaddingLeft - mPaddingRight
+                mInterval = mWidth - paddingLeft - paddingRight
 
             } else if (mParam.mCalibrationDirect == CalibrationStyle.HORIZONTAL) {
 
                 var drawSpace = mWidth - mPaddingLeft - paddingRight
-                mUnitInterval = ((drawSpace - calibrationSpace) / mParam.mTotalProgress).toInt()
-                mInterval = mHeight - mPaddingTop - mPaddingBottom
+                mUnitInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
+                mInterval = mHeight - paddingTop - paddingBottom
             }
 
         } else if (mParam.mCalibrationStyle == CalibrationStyle.CIRCLE) {
@@ -242,8 +234,15 @@ class CalibrationView : View {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
+        var rect = RectF()
+        rect.left = mPaddingLeft.toFloat()
+        rect.top = mPaddingTop.toFloat()
+        rect.right = (mWidth - mPaddingRight).toFloat()
+        rect.bottom = (mHeight - mPaddingBottom).toFloat()
+
+        canvas?.drawRoundRect(rect, 0f, 0f, mCursorPaint)
 //        drawCalibration(canvas, mChangeColorPaint, 0, mTouchY.toInt())
-        drawCalibration(canvas, mOriginColorPaint, 0, mHeight)
+        drawCalibration(canvas, mOriginColorPaint, 0f, mHeight)
 
 //        drawCursor(canvas)
     }
@@ -251,13 +250,13 @@ class CalibrationView : View {
     /**
      * 画刻度
      */
-    private fun drawCalibration(canvas: Canvas?, paint: Paint, from: Int, to: Int) {
+    private fun drawCalibration(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
 
 
         canvas!!.save()
 
         //这里就是最重要的分割canvas,可以分成上下左右的任何部分
-        val rect = Rect(0, from, mWidth, to)
+        val rect = Rect(0, from.toInt(), mWidth.toInt(), to.toInt())
         canvas.clipRect(rect)
 
 
