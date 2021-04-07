@@ -81,6 +81,8 @@ class ScaleView : View {
     private var mCenterX = 0f
     private var mCenterY = 0f
 
+    var cursorBitmap: Bitmap? = null
+
     constructor(context: Context?) : this(context, null)
 
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -111,7 +113,7 @@ class ScaleView : View {
         }
 
         var direct =
-            typeArray!!.getInt(R.styleable.ScaleView_calibrationDirect, -1)
+            typeArray!!.getInt(R.styleable.ScaleView_scaleDirect, -1)
         if (direct > 0) {
             setCalibrationDirect(direct)
         }
@@ -132,7 +134,7 @@ class ScaleView : View {
             typeArray!!.getInt(R.styleable.ScaleView_totalProgress, 60)
 
         mParam.mUnitScale =
-            typeArray!!.getInt(R.styleable.ScaleView_uniScale, 10)
+            typeArray!!.getInt(R.styleable.ScaleView_unitScale, 10)
 
         mParam.mDefaultColor =
             typeArray!!.getColor(R.styleable.ScaleView_defaultColor, Color.DKGRAY)

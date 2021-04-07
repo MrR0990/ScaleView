@@ -7,10 +7,10 @@
         <attr name="scaleWidth" format="float" />
 
         <attr name="scaleNodeWidth" format="float" />
-        
+
         <attr name="scaleThick" format="dimension" />
 
-        <attr name="calibrationDirect">
+        <attr name="scaleDirect">
             <enum name="horizontal" value="0" />
             <enum name="vertical" value="1" />
         </attr>
@@ -33,11 +33,13 @@
 
         <attr name="totalProgress" format="integer" />
 
-        <attr name="uniScale" format="integer" />
+        <attr name="unitScale" format="integer" />
 
         <attr name="defaultColor" format="color" />
 
         <attr name="progressColor" format="color" />
+
+        <attr name="cursorDrawable" format="reference" />
 
     </declare-styleable>
 
