@@ -543,6 +543,12 @@ class ScaleView : View {
             ScaleStyle.RIGHT.value -> {
                 mParam.mCursorLoc = ScaleStyle.RIGHT
             }
+            ScaleStyle.TOP.value -> {
+                mParam.mCursorLoc = ScaleStyle.TOP
+            }
+            ScaleStyle.BOTTOM.value -> {
+                mParam.mCursorLoc = ScaleStyle.BOTTOM
+            }
             ScaleStyle.INSIDE.value -> {
                 mParam.mCursorLoc = ScaleStyle.INSIDE
             }

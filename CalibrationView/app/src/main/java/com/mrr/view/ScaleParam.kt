@@ -44,7 +44,7 @@ class ScaleParam {
      * OUTSIDE:圆形刻度的外侧
      *
      */
-    var mCursorLoc = ScaleStyle.LEFT
+    var mCursorLoc = ScaleStyle.NONE
 
     /**
      * 游标的宽度

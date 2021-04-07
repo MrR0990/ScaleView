@@ -34,5 +34,6 @@ enum class ScaleStyle(val value: Int) {
     TOP(6),
     BOTTOM(7),
     INSIDE(8),
-    OUTSIDE(9)
+    OUTSIDE(9),
+    NONE(10)
 }
