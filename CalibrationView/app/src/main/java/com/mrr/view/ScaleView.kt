@@ -54,6 +54,7 @@ class ScaleView : View {
      */
     var mInterval = 0f
 
+
     /**
      * 当前触摸到的位置
      */
@@ -83,7 +84,10 @@ class ScaleView : View {
     private var mCenterX = 0f
     private var mCenterY = 0f
 
-    var cursorBitmap: Bitmap? = null
+    var mCursorBitmap: Bitmap? = null
+
+    val mCursorMatrix = Matrix()
+    val mCursorRectF = CursorRectF()
 
     //单位转换
     val Float.dp: Float
@@ -123,7 +127,7 @@ class ScaleView : View {
         var cursorDrawableID = typeArray!!.getResourceId(R.styleable.ScaleView_cursorDrawable, 0)
 
         if (cursorDrawableID > 0) {
-            cursorBitmap = BitmapFactory.decodeResource(resources, cursorDrawableID)
+            mCursorBitmap = BitmapFactory.decodeResource(resources, cursorDrawableID)
         }
 
         var style = typeArray!!.getInt(R.styleable.ScaleView_scaleStyle, -1)
@@ -186,15 +190,19 @@ class ScaleView : View {
         mHeight = MeasureSpec.getSize(heightMeasureSpec).toFloat()
         setMeasuredDimension(mWidth.toInt(), mHeight.toInt())
 
+        if (null != mCursorBitmap) {
+            mCursorRectF.mScaleX = mParam.mCursorWidth.px / mCursorBitmap!!.width
+            mCursorRectF.mScaleY = mParam.mCursorWidth.px / mCursorBitmap!!.height
+        }
+
         initPaint()
 
-
-        if (mParam.mScaleStyle == CalibrationStyle.LINE) {
+        if (mParam.mScaleStyle == ScaleStyle.LINE) {
 
             //刻度线本身占用的空间
             var calibrationSpace = mParam.mScaleThick * (mParam.mTotalProgress + 1)
 
-            if (mParam.mScaleDirect == CalibrationStyle.VERTICAL) {
+            if (mParam.mScaleDirect == ScaleStyle.VERTICAL) {
 
                 //总共的绘制空间
                 var drawSpace = mHeight - mPaddingTop - mPaddingBottom
@@ -203,14 +211,14 @@ class ScaleView : View {
                 //每个一个刻度最长可绘制的空间
                 mInterval = mWidth - paddingLeft - paddingRight
 
-            } else if (mParam.mScaleDirect == CalibrationStyle.HORIZONTAL) {
+            } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
 
                 var drawSpace = mWidth - mPaddingLeft - paddingRight
                 mPerInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
                 mInterval = mHeight - paddingTop - paddingBottom
             }
 
-        } else if (mParam.mScaleStyle == CalibrationStyle.CIRCLE) {
+        } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
             mPreAngle = (Math.PI * 2 / mParam.mTotalProgress).toFloat()
             mCircleRadius =
                 Math.min(
@@ -234,22 +242,23 @@ class ScaleView : View {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        var rect = RectF()
-        rect.left = mPaddingLeft.toFloat()
-        rect.top = mPaddingTop.toFloat()
-        rect.right = (mWidth - mPaddingRight).toFloat()
-        rect.bottom = (mHeight - mPaddingBottom).toFloat()
-
-        canvas?.drawRoundRect(rect, 0f, 0f, mCursorPaint)
+//        var rect = RectF()
+//        rect.left = mPaddingLeft.toFloat()
+//        rect.top = mPaddingTop.toFloat()
+//        rect.right = (mWidth - mPaddingRight).toFloat()
+//        rect.bottom = (mHeight - mPaddingBottom).toFloat()
+//
+//        canvas?.drawRoundRect(rect, 0f, 0f, mCursorPaint)
 //        drawCalibration(canvas, mChangeColorPaint, 0, mTouchY.toInt())
 
-        if (mParam.mScaleStyle == CalibrationStyle.LINE) {
+        if (mParam.mScaleStyle == ScaleStyle.LINE) {
             drawLineCalibration(canvas, mOriginColorPaint, 0f, mHeight)
-        } else if (mParam.mScaleStyle == CalibrationStyle.CIRCLE) {
+        } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
             drawCircleCalibration(canvas, mOriginColorPaint, 0f, mHeight)
         }
 
         drawCursor(canvas)
+
     }
 
     private fun drawCircleCalibration(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
@@ -330,7 +339,7 @@ class ScaleView : View {
         var stopY = 0f
 
 
-        if (mParam.mScaleDirect == CalibrationStyle.VERTICAL) {
+        if (mParam.mScaleDirect == ScaleStyle.VERTICAL) {
 
             nodeStartX = (mWidth - nodeLength) / 2
             nodeStopX = nodeStartX + nodeLength
@@ -360,7 +369,7 @@ class ScaleView : View {
                 Log.d(TAG, "index : $index ")
             }
 
-        } else if (mParam.mScaleDirect == CalibrationStyle.HORIZONTAL) {
+        } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
 
             nodeStartX = paddingLeft + mHalfCalibration
             nodeStopX = nodeStartX
@@ -398,21 +407,64 @@ class ScaleView : View {
      */
     private fun drawCursor(canvas: Canvas?) {
 
-        if (null == cursorBitmap) {
+        if (null == mCursorBitmap) {
             return
         }
 
-        val matrix = Matrix() // 创建操作图片用的 Matrix 对象
-        matrix.postScale(
-            mParam.mCursorWidth.px / cursorBitmap!!.width,
-            mParam.mCursorWidth.px / cursorBitmap!!.height
+        when (mParam.mCursorLoc) {
+            ScaleStyle.LEFT -> {
+                if (mParam.mScaleStyle != ScaleStyle.LINE) {
+                    return
+                }
+                mCursorRectF.mTransX =
+                    ((mInterval + paddingRight) - mInterval * mParam.mScaleWidth) / 2 - mParam.mCursorWidth.px - mParam.mCursorGap.px
+                mCursorRectF.mTransY = 30f;
+
+            }
+            ScaleStyle.RIGHT -> {
+                if (mParam.mScaleStyle != ScaleStyle.LINE) {
+                    return
+                }
+
+
+            }
+            ScaleStyle.TOP -> {
+                if (mParam.mScaleStyle != ScaleStyle.LINE) {
+                    return
+                }
+
+            }
+
+            ScaleStyle.BOTTOM -> {
+                if (mParam.mScaleStyle != ScaleStyle.LINE) {
+                    return
+                }
+
+            }
+            ScaleStyle.INSIDE -> {
+                if (mParam.mScaleStyle != ScaleStyle.CIRCLE) {
+                    return
+                }
+            }
+            ScaleStyle.OUTSIDE -> {
+                if (mParam.mScaleStyle != ScaleStyle.CIRCLE) {
+                    return
+                }
+            }
+        }
+
+
+        mCursorMatrix.reset()
+        // 创建操作图片用的 Matrix 对象
+        mCursorMatrix.postScale(
+            mCursorRectF.mScaleX, mCursorRectF.mScaleY
+
         );
-        matrix.postTranslate(
-            (-paddingLeft).toFloat(),
-            30f
+        mCursorMatrix.postTranslate(
+            mCursorRectF.mTransX,
+            mCursorRectF.mTransY
         );
-        
-        canvas?.drawBitmap(cursorBitmap, matrix, null)
+        canvas?.drawBitmap(mCursorBitmap, mCursorMatrix, null)
     }
 
 
@@ -461,11 +513,11 @@ class ScaleView : View {
 
     fun setCalibrationStyle(style: Int) {
         when (style) {
-            CalibrationStyle.LINE.value -> {
-                mParam.mScaleStyle = CalibrationStyle.LINE
+            ScaleStyle.LINE.value -> {
+                mParam.mScaleStyle = ScaleStyle.LINE
             }
-            CalibrationStyle.CIRCLE.value -> {
-                mParam.mScaleStyle = CalibrationStyle.CIRCLE
+            ScaleStyle.CIRCLE.value -> {
+                mParam.mScaleStyle = ScaleStyle.CIRCLE
             }
         }
 
@@ -473,11 +525,11 @@ class ScaleView : View {
 
     fun setCalibrationDirect(direct: Int) {
         when (direct) {
-            CalibrationStyle.HORIZONTAL.value -> {
-                mParam.mScaleDirect = CalibrationStyle.HORIZONTAL
+            ScaleStyle.HORIZONTAL.value -> {
+                mParam.mScaleDirect = ScaleStyle.HORIZONTAL
             }
-            CalibrationStyle.VERTICAL.value -> {
-                mParam.mScaleDirect = CalibrationStyle.VERTICAL
+            ScaleStyle.VERTICAL.value -> {
+                mParam.mScaleDirect = ScaleStyle.VERTICAL
             }
         }
 
@@ -485,17 +537,17 @@ class ScaleView : View {
 
     fun setCursorLoc(loc: Int) {
         when (loc) {
-            CalibrationStyle.LEFT.value -> {
-                mParam.mCursorLoc = CalibrationStyle.LEFT
+            ScaleStyle.LEFT.value -> {
+                mParam.mCursorLoc = ScaleStyle.LEFT
             }
-            CalibrationStyle.RIGHT.value -> {
-                mParam.mCursorLoc = CalibrationStyle.RIGHT
+            ScaleStyle.RIGHT.value -> {
+                mParam.mCursorLoc = ScaleStyle.RIGHT
             }
-            CalibrationStyle.INSIDE.value -> {
-                mParam.mCursorLoc = CalibrationStyle.INSIDE
+            ScaleStyle.INSIDE.value -> {
+                mParam.mCursorLoc = ScaleStyle.INSIDE
             }
-            CalibrationStyle.OUTSIDE.value -> {
-                mParam.mCursorLoc = CalibrationStyle.OUTSIDE
+            ScaleStyle.OUTSIDE.value -> {
+                mParam.mCursorLoc = ScaleStyle.OUTSIDE
             }
         }
 

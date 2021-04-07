@@ -23,8 +23,10 @@
         <attr name="cursorLoc">
             <enum name="left" value="4" />
             <enum name="right" value="5" />
-            <enum name="inside" value="6" />
-            <enum name="outside" value="7" />
+            <enum name="top" value="6" />
+            <enum name="bottom" value="7" />
+            <enum name="inside" value="8" />
+            <enum name="outside" value="9" />
         </attr>
 
         <attr name="cursorWidth" format="dimension" />

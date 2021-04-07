@@ -25,21 +25,21 @@ class Builder {
     }
 
 
-    fun setCalibrationStyle(var1: CalibrationStyle): Builder {
+    fun setCalibrationStyle(var1: ScaleStyle): Builder {
         Intrinsics.checkNotNullParameter(var1, "<set-?>")
         p.mScaleStyle = var1
         return this
     }
 
 
-    fun setCalibrationDirect(var1: CalibrationStyle): Builder {
+    fun setCalibrationDirect(var1: ScaleStyle): Builder {
         Intrinsics.checkNotNullParameter(var1, "<set-?>")
         p.mScaleDirect = var1
         return this
     }
 
 
-    fun setCursorLoc(var1: CalibrationStyle): Builder {
+    fun setCursorLoc(var1: ScaleStyle): Builder {
         Intrinsics.checkNotNullParameter(var1, "<set-?>")
         p.mCursorLoc = var1
         return this

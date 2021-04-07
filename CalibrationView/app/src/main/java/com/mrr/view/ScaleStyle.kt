@@ -3,7 +3,7 @@ package com.mrr.view
 /**
  * 刻度样式的配置
  */
-enum class CalibrationStyle(val value: Int) {
+enum class ScaleStyle(val value: Int) {
     /**
      * 线性刻度使用,是横向绘制还是竖向绘制
      */
@@ -31,6 +31,8 @@ enum class CalibrationStyle(val value: Int) {
      */
     LEFT(4),
     RIGHT(5),
-    INSIDE(6),
-    OUTSIDE(7)
+    TOP(6),
+    BOTTOM(7),
+    INSIDE(8),
+    OUTSIDE(9)
 }

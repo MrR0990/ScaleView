@@ -26,14 +26,14 @@ class ScaleParam {
     /**
      * 刻度样式,默认为线性样式
      */
-    var mScaleStyle = CalibrationStyle.LINE
+    var mScaleStyle = ScaleStyle.LINE
 
     /**
      * 线性刻度的方向
      * HORIZONTAL
      * VERTICAL
      */
-    var mScaleDirect = CalibrationStyle.HORIZONTAL
+    var mScaleDirect = ScaleStyle.HORIZONTAL
 
     /**
      * 游标位置
@@ -44,7 +44,7 @@ class ScaleParam {
      * OUTSIDE:圆形刻度的外侧
      *
      */
-    var mCursorLoc = CalibrationStyle.LEFT
+    var mCursorLoc = ScaleStyle.LEFT
 
     /**
      * 游标的宽度
@@ -56,7 +56,7 @@ class ScaleParam {
     /**
      * 游标和刻度之间的间隙
      */
-    var mCursorGap = 5f
+    var mCursorGap = 0f
 
     /**
      * 总刻度
