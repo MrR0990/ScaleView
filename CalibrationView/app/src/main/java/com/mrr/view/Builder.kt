@@ -5,36 +5,36 @@ import kotlin.jvm.internal.Intrinsics
 
 class Builder {
 
-    var p: CalibrationParam;
+    var p: ScaleParam;
 
     constructor(context: Context) {
-        p = CalibrationParam()
+        p = ScaleParam()
         p.context = context
     }
 
 
     fun setCalibrationWidth(var1: Float): Builder {
-        p.mCalibrationWidth = var1
+        p.mScaleWidth = var1
         return this
     }
 
 
     fun setCalibrationNodeWidth(var1: Float): Builder {
-        p.mCalibrationNodeWidth = var1
+        p.mScaleNodeWidth = var1
         return this
     }
 
 
     fun setCalibrationStyle(var1: CalibrationStyle): Builder {
         Intrinsics.checkNotNullParameter(var1, "<set-?>")
-        p.mCalibrationStyle = var1
+        p.mScaleStyle = var1
         return this
     }
 
 
     fun setCalibrationDirect(var1: CalibrationStyle): Builder {
         Intrinsics.checkNotNullParameter(var1, "<set-?>")
-        p.mCalibrationDirect = var1
+        p.mScaleDirect = var1
         return this
     }
 
@@ -65,7 +65,7 @@ class Builder {
 
 
     fun setUnitCalibration(var1: Int): Builder {
-        p.mUnitCalibration = var1
+        p.mUnitScale = var1
         return this
     }
 
@@ -81,13 +81,13 @@ class Builder {
         return this
     }
 
-    fun setProgressListener(var1: CalibrationParam.ProgressListener): Builder {
+    fun setProgressListener(var1: ScaleParam.ProgressListener): Builder {
         p.mProgressListener = var1
         return this
     }
 
-    fun create(): CalibrationView {
-        val view = CalibrationView(p.context);
+    fun create(): ScaleView {
+        val view = ScaleView(p.context);
         p.apply(view.mParam)
         return view;
     }

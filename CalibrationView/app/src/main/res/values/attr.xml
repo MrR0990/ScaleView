@@ -2,20 +2,20 @@
 <resources>
 
 
-    <declare-styleable name="CalibrationView">
+    <declare-styleable name="ScaleView">
 
-        <attr name="calibrationWidth" format="float" />
+        <attr name="scaleWidth" format="float" />
 
-        <attr name="calibrationNodeWidth" format="float" />
+        <attr name="scaleNodeWidth" format="float" />
         
-        <attr name="calibrationThick" format="dimension" />
+        <attr name="scaleThick" format="dimension" />
 
         <attr name="calibrationDirect">
             <enum name="horizontal" value="0" />
             <enum name="vertical" value="1" />
         </attr>
 
-        <attr name="calibrationStyle">
+        <attr name="scaleStyle">
             <enum name="line" value="2" />
             <enum name="circle" value="3" />
         </attr>
@@ -33,7 +33,7 @@
 
         <attr name="totalProgress" format="integer" />
 
-        <attr name="unitCalibration" format="integer" />
+        <attr name="uniScale" format="integer" />
 
         <attr name="defaultColor" format="color" />
 

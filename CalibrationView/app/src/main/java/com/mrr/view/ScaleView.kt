@@ -16,17 +16,16 @@ import android.view.View
  * 2. 画线性游标
  * - 游标按照节点最长的位置绘制
  */
-class CalibrationView : View {
+class ScaleView : View {
     val TAG = "CalibrationProgressView"
 
     var mContext: Context? = null
-    var mParam = CalibrationParam();
+    var mParam = ScaleParam();
 
-    var mProgressListener: CalibrationParam.ProgressListener? = null
+    var mProgressListener: ScaleParam.ProgressListener? = null
 
     var mWidth = 0f
     var mHeight = 0f
-
 
     /**
      * 刻度线一半的厚度,方便计算
@@ -78,8 +77,6 @@ class CalibrationView : View {
      */
     var isInit = false
 
-    var mCurrentRotationAngle = -90f
-
     // 屏幕最中心的位置
     private var mCenterX = 0f
     private var mCenterY = 0f
@@ -94,53 +91,54 @@ class CalibrationView : View {
         defStyleAttr
     ) {
         this.mContext = context
-        var typeArray = context?.obtainStyledAttributes(attrs, R.styleable.CalibrationView)
+        var typeArray = context?.obtainStyledAttributes(attrs, R.styleable.ScaleView)
 
-        mParam.mCalibrationWidth =
-            typeArray!!.getFloat(R.styleable.CalibrationView_calibrationWidth, 0.5f)
-
-
-        mParam.mCalibrationNodeWidth =
-            typeArray!!.getFloat(R.styleable.CalibrationView_calibrationNodeWidth, 0.7f)
-
-        mParam.mCalibrationThick =
-            typeArray!!.getDimension(R.styleable.CalibrationView_calibrationThick, 5f)
+        mParam.mScaleWidth =
+            typeArray!!.getFloat(R.styleable.ScaleView_scaleWidth, 0.5f)
 
 
-        var style = typeArray!!.getInt(R.styleable.CalibrationView_calibrationStyle, -1)
+        mParam.mScaleNodeWidth =
+            typeArray!!.getFloat(R.styleable.ScaleView_scaleNodeWidth, 0.7f)
+
+        mParam.mScaleThick =
+            typeArray!!.getDimension(R.styleable.ScaleView_scaleThick, 5f)
+
+
+        var style = typeArray!!.getInt(R.styleable.ScaleView_scaleStyle, -1)
+
         if (style > 0) {
             setCalibrationStyle(style)
         }
 
         var direct =
-            typeArray!!.getInt(R.styleable.CalibrationView_calibrationDirect, -1)
+            typeArray!!.getInt(R.styleable.ScaleView_calibrationDirect, -1)
         if (direct > 0) {
             setCalibrationDirect(direct)
         }
 
         var cursorLoc =
-            typeArray!!.getInt(R.styleable.CalibrationView_cursorLoc, -1)
+            typeArray!!.getInt(R.styleable.ScaleView_cursorLoc, -1)
         if (cursorLoc > 0) {
             setCursorLoc(cursorLoc)
         }
 
         mParam.mCursorWidth =
-            typeArray!!.getDimension(R.styleable.CalibrationView_cursorWidth, 20f)
+            typeArray!!.getDimension(R.styleable.ScaleView_cursorWidth, 20f)
 
         mParam.mCursorGap =
-            typeArray!!.getDimension(R.styleable.CalibrationView_cursorGap, 5f)
+            typeArray!!.getDimension(R.styleable.ScaleView_cursorGap, 5f)
 
         mParam.mTotalProgress =
-            typeArray!!.getInt(R.styleable.CalibrationView_totalProgress, 60)
+            typeArray!!.getInt(R.styleable.ScaleView_totalProgress, 60)
 
-        mParam.mUnitCalibration =
-            typeArray!!.getInt(R.styleable.CalibrationView_unitCalibration, 10)
+        mParam.mUnitScale =
+            typeArray!!.getInt(R.styleable.ScaleView_uniScale, 10)
 
         mParam.mDefaultColor =
-            typeArray!!.getColor(R.styleable.CalibrationView_defaultColor, Color.DKGRAY)
+            typeArray!!.getColor(R.styleable.ScaleView_defaultColor, Color.DKGRAY)
 
         mParam.mProgressColor =
-            typeArray!!.getColor(R.styleable.CalibrationView_progressColor, Color.DKGRAY)
+            typeArray!!.getColor(R.styleable.ScaleView_progressColor, Color.DKGRAY)
 
         typeArray.recycle()
     }
@@ -169,12 +167,12 @@ class CalibrationView : View {
         initPaint()
 
 
-        if (mParam.mCalibrationStyle == CalibrationStyle.LINE) {
+        if (mParam.mScaleStyle == CalibrationStyle.LINE) {
 
             //刻度线本身占用的空间
-            var calibrationSpace = mParam.mCalibrationThick * (mParam.mTotalProgress + 1)
+            var calibrationSpace = mParam.mScaleThick * (mParam.mTotalProgress + 1)
 
-            if (mParam.mCalibrationDirect == CalibrationStyle.VERTICAL) {
+            if (mParam.mScaleDirect == CalibrationStyle.VERTICAL) {
 
                 //总共的绘制空间
                 var drawSpace = mHeight - mPaddingTop - mPaddingBottom
@@ -183,14 +181,14 @@ class CalibrationView : View {
                 //每个一个刻度最长可绘制的空间
                 mInterval = mWidth - paddingLeft - paddingRight
 
-            } else if (mParam.mCalibrationDirect == CalibrationStyle.HORIZONTAL) {
+            } else if (mParam.mScaleDirect == CalibrationStyle.HORIZONTAL) {
 
                 var drawSpace = mWidth - mPaddingLeft - paddingRight
                 mPerInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
                 mInterval = mHeight - paddingTop - paddingBottom
             }
 
-        } else if (mParam.mCalibrationStyle == CalibrationStyle.CIRCLE) {
+        } else if (mParam.mScaleStyle == CalibrationStyle.CIRCLE) {
             mPreAngle = (Math.PI * 2 / mParam.mTotalProgress).toFloat()
             mCircleRadius =
                 Math.min(
@@ -203,7 +201,7 @@ class CalibrationView : View {
         }
 
 
-        mHalfCalibration = mParam.mCalibrationThick / 2
+        mHalfCalibration = mParam.mScaleThick / 2
 
         mTouchY = (mPaddingTop + mPerInterval).toFloat()
 
@@ -223,12 +221,11 @@ class CalibrationView : View {
         canvas?.drawRoundRect(rect, 0f, 0f, mCursorPaint)
 //        drawCalibration(canvas, mChangeColorPaint, 0, mTouchY.toInt())
 
-        if (mParam.mCalibrationStyle == CalibrationStyle.LINE) {
+        if (mParam.mScaleStyle == CalibrationStyle.LINE) {
             drawLineCalibration(canvas, mOriginColorPaint, 0f, mHeight)
-        } else if (mParam.mCalibrationStyle == CalibrationStyle.CIRCLE) {
+        } else if (mParam.mScaleStyle == CalibrationStyle.CIRCLE) {
             drawCircleCalibration(canvas, mOriginColorPaint, 0f, mHeight)
         }
-
 
 //        drawCursor(canvas)
     }
@@ -239,7 +236,7 @@ class CalibrationView : View {
 
         //节点刻度和普通刻度的长度差
         var lengthDiff =
-            ((mCircleRadius * mParam.mCalibrationNodeWidth) - (mCircleRadius * mParam.mCalibrationWidth)) / 2
+            ((mCircleRadius * mParam.mScaleNodeWidth) - (mCircleRadius * mParam.mScaleWidth)) / 2
 
         var startX = 0f
         var stopX = 0f
@@ -251,22 +248,22 @@ class CalibrationView : View {
             val angle = (index * mPreAngle).toDouble()
 
             //从外往内绘制
-            if (index % mParam.mUnitCalibration == 0) {
+            if (index % mParam.mUnitScale == 0) {
                 startX = (mCenterX + mCircleRadius * Math.cos(angle)).toFloat()
                 startY = (mCenterY + mCircleRadius * Math.sin(angle)).toFloat()
-                stopX = (mCenterX + (mCircleRadius - mCircleRadius * mParam.mCalibrationNodeWidth)
+                stopX = (mCenterX + (mCircleRadius - mCircleRadius * mParam.mScaleNodeWidth)
                         * Math.cos(angle)).toFloat()
-                stopY = (mCenterY + (mCircleRadius - mCircleRadius * mParam.mCalibrationNodeWidth)
+                stopY = (mCenterY + (mCircleRadius - mCircleRadius * mParam.mScaleNodeWidth)
                         * Math.sin(angle)).toFloat()
             } else {
                 startX = (mCenterX + (mCircleRadius - lengthDiff)
                         * Math.cos(angle)).toFloat()
                 startY = (mCenterY + (mCircleRadius - lengthDiff) * Math.sin(angle)).toFloat()
                 stopX =
-                    (mCenterX + (mCircleRadius - mCircleRadius * mParam.mCalibrationWidth - lengthDiff)
+                    (mCenterX + (mCircleRadius - mCircleRadius * mParam.mScaleWidth - lengthDiff)
                             * Math.cos(angle)).toFloat()
                 stopY =
-                    (mCenterY + (mCircleRadius - mCircleRadius * mParam.mCalibrationWidth - lengthDiff)
+                    (mCenterY + (mCircleRadius - mCircleRadius * mParam.mScaleWidth - lengthDiff)
                             * Math.sin(angle)).toFloat()
             }
 
@@ -293,10 +290,10 @@ class CalibrationView : View {
 
 
         //第一个节点是一个刻度节点
-        var nodeLength = mInterval * mParam.mCalibrationNodeWidth
+        var nodeLength = mInterval * mParam.mScaleNodeWidth
 
         //普通刻度占组件减去padding之后的宽度/高度
-        var linelength = mInterval * mParam.mCalibrationWidth
+        var linelength = mInterval * mParam.mScaleWidth
 
         var nodeStartX = 0f
         var nodeStopX = 0f
@@ -311,7 +308,7 @@ class CalibrationView : View {
         var stopY = 0f
 
 
-        if (mParam.mCalibrationDirect == CalibrationStyle.VERTICAL) {
+        if (mParam.mScaleDirect == CalibrationStyle.VERTICAL) {
 
             nodeStartX = (mWidth - nodeLength) / 2
             nodeStopX = nodeStartX + nodeLength
@@ -328,20 +325,20 @@ class CalibrationView : View {
                 }
 
                 canvas?.drawLine(
-                    if (index % mParam.mUnitCalibration == 0) nodeStartX.toFloat() else startX,
+                    if (index % mParam.mUnitScale == 0) nodeStartX.toFloat() else startX,
                     startY.toFloat(),
-                    if (index % mParam.mUnitCalibration == 0) nodeStopX.toFloat() else stopX,
+                    if (index % mParam.mUnitScale == 0) nodeStopX.toFloat() else stopX,
                     stopY.toFloat(),
                     paint
                 )
 
-                startY += (mPerInterval + mParam.mCalibrationThick)
-                stopY += (mPerInterval + mParam.mCalibrationThick)
+                startY += (mPerInterval + mParam.mScaleThick)
+                stopY += (mPerInterval + mParam.mScaleThick)
 
                 Log.d(TAG, "index : $index ")
             }
 
-        } else if (mParam.mCalibrationDirect == CalibrationStyle.HORIZONTAL) {
+        } else if (mParam.mScaleDirect == CalibrationStyle.HORIZONTAL) {
 
             nodeStartX = paddingLeft + mHalfCalibration
             nodeStopX = nodeStartX
@@ -356,14 +353,14 @@ class CalibrationView : View {
 
                 canvas?.drawLine(
                     nodeStartX,
-                    if (index % mParam.mUnitCalibration == 0) nodeStartY.toFloat() else startY,
+                    if (index % mParam.mUnitScale == 0) nodeStartY.toFloat() else startY,
                     nodeStopX,
-                    if (index % mParam.mUnitCalibration == 0) nodeStopY.toFloat() else stopY,
+                    if (index % mParam.mUnitScale == 0) nodeStopY.toFloat() else stopY,
                     paint
                 )
 
-                nodeStartX += (mPerInterval + mParam.mCalibrationThick)
-                nodeStopX += (mPerInterval + mParam.mCalibrationThick)
+                nodeStartX += (mPerInterval + mParam.mScaleThick)
+                nodeStopX += (mPerInterval + mParam.mScaleThick)
 
             }
         }
@@ -428,12 +425,12 @@ class CalibrationView : View {
         mOriginColorPaint.isAntiAlias = true
         mOriginColorPaint.style = Paint.Style.STROKE
         mOriginColorPaint.color = mParam.mDefaultColor
-        mOriginColorPaint.strokeWidth = mParam.mCalibrationThick
+        mOriginColorPaint.strokeWidth = mParam.mScaleThick
 
         mChangeColorPaint.isAntiAlias = true
         mChangeColorPaint.style = Paint.Style.STROKE
         mChangeColorPaint.color = mParam.mProgressColor
-        mChangeColorPaint.strokeWidth = mParam.mCalibrationThick
+        mChangeColorPaint.strokeWidth = mParam.mScaleThick
 
 
         mCursorPaint.isAntiAlias = true
@@ -444,10 +441,10 @@ class CalibrationView : View {
     fun setCalibrationStyle(style: Int) {
         when (style) {
             CalibrationStyle.LINE.value -> {
-                mParam.mCalibrationStyle = CalibrationStyle.LINE
+                mParam.mScaleStyle = CalibrationStyle.LINE
             }
             CalibrationStyle.CIRCLE.value -> {
-                mParam.mCalibrationStyle = CalibrationStyle.CIRCLE
+                mParam.mScaleStyle = CalibrationStyle.CIRCLE
             }
         }
 
@@ -456,10 +453,10 @@ class CalibrationView : View {
     fun setCalibrationDirect(direct: Int) {
         when (direct) {
             CalibrationStyle.HORIZONTAL.value -> {
-                mParam.mCalibrationDirect = CalibrationStyle.HORIZONTAL
+                mParam.mScaleDirect = CalibrationStyle.HORIZONTAL
             }
             CalibrationStyle.VERTICAL.value -> {
-                mParam.mCalibrationDirect = CalibrationStyle.VERTICAL
+                mParam.mScaleDirect = CalibrationStyle.VERTICAL
             }
         }
 

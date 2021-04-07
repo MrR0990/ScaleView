@@ -3,37 +3,37 @@ package com.mrr.view
 import android.content.Context
 import android.graphics.Color
 
-class CalibrationParam {
+class ScaleParam {
 
     var context: Context? = null
 
     /**
      * 普通刻度占组件减去padding之后的宽度/高度的比例
      */
-    var mCalibrationWidth = 0.5f
+    var mScaleWidth = 0.5f
 
     /**
      * 刻度节点占组件减去padding之后的宽度/高度的比例
      */
-    var mCalibrationNodeWidth = 0.7f
+    var mScaleNodeWidth = 0.7f
 
     /**
      * 刻度线的粗细
      */
-    var mCalibrationThick = 5f
+    var mScaleThick = 5f
 
 
     /**
      * 刻度样式,默认为线性样式
      */
-    var mCalibrationStyle = CalibrationStyle.LINE
+    var mScaleStyle = CalibrationStyle.LINE
 
     /**
      * 线性刻度的方向
      * HORIZONTAL
      * VERTICAL
      */
-    var mCalibrationDirect = CalibrationStyle.HORIZONTAL
+    var mScaleDirect = CalibrationStyle.HORIZONTAL
 
     /**
      * 游标位置
@@ -66,7 +66,7 @@ class CalibrationParam {
     /**
      * 单位刻度,主要是用来控制节点刻度
      */
-    var mUnitCalibration = 10
+    var mUnitScale = 10
 
     /**
      * 刻度默认颜色
@@ -80,21 +80,24 @@ class CalibrationParam {
 
     var mProgressListener: ProgressListener? = null
 
+    var mScaleMarkSize = 0f
 
-    fun apply(param: CalibrationParam) {
+
+    fun apply(param: ScaleParam) {
         param.context = this.context
-        param.mCalibrationWidth = this.mCalibrationWidth
-        param.mCalibrationThick = this.mCalibrationThick
-        param.mCalibrationNodeWidth = this.mCalibrationNodeWidth
-        param.mCalibrationStyle = this.mCalibrationStyle
-        param.mCalibrationDirect = this.mCalibrationDirect
+        param.mScaleWidth = this.mScaleWidth
+        param.mScaleThick = this.mScaleThick
+        param.mScaleNodeWidth = this.mScaleNodeWidth
+        param.mScaleStyle = this.mScaleStyle
+        param.mScaleDirect = this.mScaleDirect
         param.mCursorLoc = this.mCursorLoc
         param.mCursorWidth = this.mCursorWidth
         param.mCursorGap = this.mCursorGap
         param.mTotalProgress = this.mTotalProgress
-        param.mUnitCalibration = this.mUnitCalibration
+        param.mUnitScale = this.mUnitScale
         param.mDefaultColor = this.mDefaultColor
         param.mProgressColor = this.mProgressColor
+        param.mScaleMarkSize = this.mScaleMarkSize
         param.mProgressListener = this.mProgressListener
     }
 
