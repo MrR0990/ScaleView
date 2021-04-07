@@ -27,7 +27,7 @@
             <enum name="outside" value="7" />
         </attr>
 
-        <attr name="cursorWidth" format="float" />
+        <attr name="cursorWidth" format="dimension" />
 
         <attr name="cursorGap" format="dimension" />
 

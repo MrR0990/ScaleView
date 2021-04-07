@@ -1,9 +1,11 @@
 package com.mrr.view
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 
@@ -83,6 +85,19 @@ class ScaleView : View {
 
     var cursorBitmap: Bitmap? = null
 
+    //单位转换
+    val Float.dp: Float
+        get() = (this / Resources.getSystem().displayMetrics.density)
+    val Float.px: Float
+        get() = (this * Resources.getSystem().displayMetrics.density)
+
+    val Float.sp2px: Float
+        get() = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP,
+            this.toFloat(),
+            resources.displayMetrics
+        )
+
     constructor(context: Context?) : this(context, null)
 
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -105,6 +120,11 @@ class ScaleView : View {
         mParam.mScaleThick =
             typeArray!!.getDimension(R.styleable.ScaleView_scaleThick, 5f)
 
+        var cursorDrawableID = typeArray!!.getResourceId(R.styleable.ScaleView_cursorDrawable, 0)
+
+        if (cursorDrawableID > 0) {
+            cursorBitmap = BitmapFactory.decodeResource(resources, cursorDrawableID)
+        }
 
         var style = typeArray!!.getInt(R.styleable.ScaleView_scaleStyle, -1)
 
@@ -229,7 +249,7 @@ class ScaleView : View {
             drawCircleCalibration(canvas, mOriginColorPaint, 0f, mHeight)
         }
 
-//        drawCursor(canvas)
+        drawCursor(canvas)
     }
 
     private fun drawCircleCalibration(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
@@ -371,29 +391,28 @@ class ScaleView : View {
 
     }
 
+
     /**
-     * 画游标
+     * 绘制用户自定义的图片游标
+     *
      */
     private fun drawCursor(canvas: Canvas?) {
 
-        var startX = (mWidth / 4 * 3).toFloat()
-        var startY = mTouchY
-        var cursorpath = Path()
-        cursorpath.moveTo(startX, mTouchY)
+        if (null == cursorBitmap) {
+            return
+        }
 
-        var targetXLength =
-            Math.sqrt((mParam.mCursorWidth * mParam.mCursorWidth - (mParam.mCursorWidth / 2) * (mParam.mCursorWidth / 2)).toDouble())
-
-        cursorpath.lineTo(
-            (startX + targetXLength).toFloat(),
-            mTouchY - mParam.mCursorWidth / 2
-        )
-        cursorpath.lineTo(
-            (startX + targetXLength).toFloat(),
-            mTouchY + mParam.mCursorWidth / 2
-        )
-        cursorpath.close()
-        canvas?.drawPath(cursorpath, mCursorPaint)
+        val matrix = Matrix() // 创建操作图片用的 Matrix 对象
+        matrix.postScale(
+            mParam.mCursorWidth.px / cursorBitmap!!.width,
+            mParam.mCursorWidth.px / cursorBitmap!!.height
+        );
+        matrix.postTranslate(
+            (-paddingLeft).toFloat(),
+            30f
+        );
+        
+        canvas?.drawBitmap(cursorBitmap, matrix, null)
     }
 
 
@@ -481,4 +500,14 @@ class ScaleView : View {
         }
 
     }
+
+    private fun sp2px(sp: Int): Float {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP,
+            sp.toFloat(),
+            resources.displayMetrics
+        )
+    }
+
+
 }
