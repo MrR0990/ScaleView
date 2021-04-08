@@ -22,6 +22,15 @@ class ScaleView : View {
     val TAG = "ScaleView"
 
     var mContext: Context? = null
+
+    /**
+     * 当前进度
+     */
+    var mCurProgress = 0
+
+    /**
+     * 各种属性
+     */
     var mParam = ScaleParam();
 
     var mProgressListener: ScaleParam.ProgressListener? = null
@@ -54,10 +63,12 @@ class ScaleView : View {
      */
     var mInterval = 0f
 
+    var mDrawSpace = 0f
 
     /**
      * 当前触摸到的位置
      */
+    var mTouchX = 0f;
     var mTouchY = 0f;
 
     /**
@@ -94,6 +105,11 @@ class ScaleView : View {
 
     val mCursorMatrix = Matrix()
     val mCursorRectF = CursorRectF()
+
+    /**
+     * 线性刻度时候切割canvas使用
+     */
+    val mClipRect = RectF()
 
     //单位转换
     val Float.dp: Float
@@ -211,21 +227,23 @@ class ScaleView : View {
             if (mParam.mScaleDirect == ScaleStyle.VERTICAL) {
 
                 //总共的绘制空间
-                var drawSpace = mHeight - mPaddingTop - mPaddingBottom
+                mDrawSpace = mHeight - mPaddingTop - mPaddingBottom
                 //刻度之间的缝隙大小
-                mPerInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
+                mPerInterval = (mDrawSpace - calibrationSpace) / mParam.mTotalProgress
                 //每个一个刻度最长可绘制的空间
                 mInterval = mWidth - paddingLeft - paddingRight
                 nodeLength = mInterval * mParam.mScaleNodeWidth
                 linelength = mInterval * mParam.mScaleWidth
+                mTouchY = -mParam.mCursorWidth.px / 2 + mHalfCalibration
 
             } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
 
-                var drawSpace = mWidth - mPaddingLeft - paddingRight
-                mPerInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
+                mDrawSpace = mWidth - mPaddingLeft - paddingRight
+                mPerInterval = (mDrawSpace - calibrationSpace) / mParam.mTotalProgress
                 mInterval = mHeight - paddingTop - paddingBottom
                 nodeLength = mInterval * mParam.mScaleNodeWidth
                 linelength = mInterval * mParam.mScaleWidth
+                mTouchX = paddingLeft.toFloat() + mHalfCalibration
             }
 
         } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
@@ -249,6 +267,8 @@ class ScaleView : View {
     }
 
 
+    var mClipProgress = 0f
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
@@ -262,7 +282,29 @@ class ScaleView : View {
 //        drawCalibration(canvas, mChangeColorPaint, 0, mTouchY.toInt())
 
         if (mParam.mScaleStyle == ScaleStyle.LINE) {
-            drawLineCalibration(canvas, mOriginColorPaint, 0f, mHeight)
+
+            if (mParam.mScaleDirect == ScaleStyle.VERTICAL) {
+
+                mClipProgress = mDrawSpace * (mTouchY - paddingTop) / mDrawSpace
+
+                mClipRect.set(0f, 0f, mWidth, mTouchY)
+                drawLineCalibration(canvas, mChangeColorPaint, mClipRect)
+
+                mClipRect.set(0f, mTouchY, mWidth, mHeight)
+                drawLineCalibration(canvas, mOriginColorPaint, mClipRect)
+
+            } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
+
+                mClipProgress = mDrawSpace * (mTouchX - paddingLeft) / mDrawSpace
+
+                mClipRect.set(0f, 0f, mTouchX, mHeight)
+                drawLineCalibration(canvas, mChangeColorPaint, mClipRect)
+
+                mClipRect.set(mTouchX, 0f, mWidth, mHeight)
+                drawLineCalibration(canvas, mOriginColorPaint, mClipRect)
+            }
+
+
         } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
             drawCircleCalibration(canvas, mOriginColorPaint, 0f, mHeight)
         }
@@ -270,6 +312,18 @@ class ScaleView : View {
         drawCursor(canvas)
 
     }
+
+    private var nodeStartX = 0f
+    private var nodeStopX = 0f
+
+    private var nodeStartY = 0f
+    private var nodeStopY = 0f
+
+    private var startX = 0f
+    private var stopX = 0f
+
+    private var startY = 0f
+    private var stopY = 0f
 
     private fun drawCircleCalibration(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
 
@@ -279,10 +333,6 @@ class ScaleView : View {
         var lengthDiff =
             ((mCircleRadius * mParam.mScaleNodeWidth) - (mCircleRadius * mParam.mScaleWidth)) / 2
 
-        var startX = 0f
-        var stopX = 0f
-        var startY = 0f
-        var stopY = 0f
 
         for (index in 0..mParam.mTotalProgress - 1) {
             // 初始角度 + 当前旋转的角度
@@ -317,30 +367,15 @@ class ScaleView : View {
         }
     }
 
+
     /**
      * 画线性的刻度
      */
-    private fun drawLineCalibration(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
+    private fun drawLineCalibration(canvas: Canvas?, paint: Paint, clipRectF: RectF) {
 
 
         canvas!!.save()
-
-        //这里就是最重要的分割canvas,可以分成上下左右的任何部分
-        val rect = Rect(0, from.toInt(), mWidth.toInt(), to.toInt())
-        canvas.clipRect(rect)
-
-
-        var nodeStartX = 0f
-        var nodeStopX = 0f
-
-        var nodeStartY = 0f
-        var nodeStopY = 0f
-
-        var startX = 0f
-        var stopX = 0f
-
-        var startY = 0f
-        var stopY = 0f
+        canvas.clipRect(clipRectF)
 
 
         if (mParam.mScaleDirect == ScaleStyle.VERTICAL) {
@@ -355,9 +390,6 @@ class ScaleView : View {
             stopY = startY
 
             for (index in 0..mParam.mTotalProgress) {
-                if (stopY > to) {
-                    break
-                }
 
                 canvas?.drawLine(
                     if (index % mParam.mUnitScale == 0) nodeStartX.toFloat() else startX,
@@ -370,7 +402,6 @@ class ScaleView : View {
                 startY += (mPerInterval + mParam.mScaleThick)
                 stopY += (mPerInterval + mParam.mScaleThick)
 
-                Log.d(TAG, "index : $index ")
             }
 
         } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
@@ -422,7 +453,9 @@ class ScaleView : View {
                 }
                 mCursorRectF.mTransX =
                     paddingLeft + (mInterval - linelength) / 2 - mParam.mCursorGap.px - mParam.mCursorWidth.px
-                mCursorRectF.mTransY = 30f;
+
+
+                mCursorRectF.mTransY = mTouchY - mParam.mCursorWidth.px / 2
 
             }
             ScaleStyle.RIGHT -> {
@@ -431,7 +464,8 @@ class ScaleView : View {
                 }
                 mCursorRectF.mTransX =
                     paddingLeft + (mInterval - linelength) / 2 + linelength + mParam.mCursorGap.px
-                mCursorRectF.mTransY = 80f;
+
+                mCursorRectF.mTransY = mTouchY - mParam.mCursorWidth.px / 2
 
 
             }
@@ -440,18 +474,17 @@ class ScaleView : View {
                     return
                 }
 
-                mCursorRectF.mTransX = 30f
+                mCursorRectF.mTransX = mTouchX - mParam.mCursorWidth.px / 2
 
                 mCursorRectF.mTransY =
                     paddingTop + (mInterval - linelength) / 2 - mParam.mCursorGap.px - mParam.mCursorWidth.px
             }
-
             ScaleStyle.BOTTOM -> {
                 if (mParam.mScaleStyle != ScaleStyle.LINE) {
                     return
                 }
 
-                mCursorRectF.mTransX = 80f
+                mCursorRectF.mTransX = mTouchX - mParam.mCursorWidth.px / 2
 
                 mCursorRectF.mTransY =
                     paddingTop + (mInterval - linelength) / 2 + linelength + mParam.mCursorGap.px
@@ -490,7 +523,6 @@ class ScaleView : View {
         // 创建操作图片用的 Matrix 对象
         mCursorMatrix.postScale(
             mCursorRectF.mScaleX, mCursorRectF.mScaleY
-
         );
         mCursorMatrix.postTranslate(
             mCursorRectF.mTransX,
@@ -505,16 +537,25 @@ class ScaleView : View {
         when (event?.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE, MotionEvent.ACTION_UP -> {
 
+                mTouchX = event.x
                 mTouchY = event.y
 
-                if (mTouchY < mPaddingTop + mPerInterval) {
-                    mTouchY = (mPaddingTop + mPerInterval).toFloat()
+                if (mTouchX < paddingLeft) {
+                    mTouchX = paddingLeft.toFloat()
                 }
 
-                if (mTouchY > mPaddingTop + (mPerInterval * (mParam.mTotalProgress + 1))) {
-                    mTouchY =
-                        (mPaddingTop + (mPerInterval * (mParam.mTotalProgress + 1))).toFloat()
+                if (mTouchX > mWidth - paddingRight) {
+                    mTouchX = mWidth - paddingRight
                 }
+
+                if (mTouchY < paddingTop) {
+                    mTouchY = paddingTop.toFloat()
+                }
+
+                if (mTouchY > mHeight - paddingBottom) {
+                    mTouchY = mHeight - paddingBottom
+                }
+
             }
         }
 
