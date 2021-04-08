@@ -19,7 +19,7 @@ import android.view.View
  * - 游标按照节点最长的位置绘制
  */
 class ScaleView : View {
-    val TAG = "CalibrationProgressView"
+    val TAG = "ScaleView"
 
     var mContext: Context? = null
     var mParam = ScaleParam();
@@ -83,6 +83,12 @@ class ScaleView : View {
     // 屏幕最中心的位置
     private var mCenterX = 0f
     private var mCenterY = 0f
+
+    //第一个节点是一个刻度节点
+    var nodeLength = mInterval * mParam.mScaleNodeWidth
+
+    //普通刻度占组件减去padding之后的宽度/高度
+    var linelength = mInterval * mParam.mScaleWidth
 
     var mCursorBitmap: Bitmap? = null
 
@@ -210,12 +216,16 @@ class ScaleView : View {
                 mPerInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
                 //每个一个刻度最长可绘制的空间
                 mInterval = mWidth - paddingLeft - paddingRight
+                nodeLength = mInterval * mParam.mScaleNodeWidth
+                linelength = mInterval * mParam.mScaleWidth
 
             } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
 
                 var drawSpace = mWidth - mPaddingLeft - paddingRight
                 mPerInterval = (drawSpace - calibrationSpace) / mParam.mTotalProgress
                 mInterval = mHeight - paddingTop - paddingBottom
+                nodeLength = mInterval * mParam.mScaleNodeWidth
+                linelength = mInterval * mParam.mScaleWidth
             }
 
         } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
@@ -320,12 +330,6 @@ class ScaleView : View {
         canvas.clipRect(rect)
 
 
-        //第一个节点是一个刻度节点
-        var nodeLength = mInterval * mParam.mScaleNodeWidth
-
-        //普通刻度占组件减去padding之后的宽度/高度
-        var linelength = mInterval * mParam.mScaleWidth
-
         var nodeStartX = 0f
         var nodeStopX = 0f
 
@@ -341,10 +345,10 @@ class ScaleView : View {
 
         if (mParam.mScaleDirect == ScaleStyle.VERTICAL) {
 
-            nodeStartX = (mWidth - nodeLength) / 2
+            nodeStartX = paddingLeft + (mInterval - nodeLength) / 2
             nodeStopX = nodeStartX + nodeLength
 
-            startX = (mWidth - linelength) / 2
+            startX = paddingLeft + (mInterval - linelength) / 2
             stopX = startX + linelength
 
             startY = mPaddingTop + mHalfCalibration
@@ -374,10 +378,10 @@ class ScaleView : View {
             nodeStartX = paddingLeft + mHalfCalibration
             nodeStopX = nodeStartX
 
-            nodeStartY = (mHeight - nodeLength) / 2
+            nodeStartY = paddingTop + (mInterval - nodeLength) / 2
             nodeStopY = nodeStartY + nodeLength
 
-            startY = (mHeight - linelength) / 2
+            startY = paddingTop + (mInterval - linelength) / 2
             stopY = startY + linelength
 
             for (index in 0..mParam.mTotalProgress) {
@@ -417,7 +421,7 @@ class ScaleView : View {
                     return
                 }
                 mCursorRectF.mTransX =
-                    ((mInterval + paddingRight) - mInterval * mParam.mScaleWidth) / 2 - mParam.mCursorWidth.px - mParam.mCursorGap.px
+                    paddingLeft + (mInterval - linelength) / 2 - mParam.mCursorGap.px - mParam.mCursorWidth.px
                 mCursorRectF.mTransY = 30f;
 
             }
@@ -425,6 +429,9 @@ class ScaleView : View {
                 if (mParam.mScaleStyle != ScaleStyle.LINE) {
                     return
                 }
+                mCursorRectF.mTransX =
+                    paddingLeft + (mInterval - linelength) / 2 + linelength + mParam.mCursorGap.px
+                mCursorRectF.mTransY = 80f;
 
 
             }
@@ -433,12 +440,21 @@ class ScaleView : View {
                     return
                 }
 
+                mCursorRectF.mTransX = 30f
+
+                mCursorRectF.mTransY =
+                    paddingTop + (mInterval - linelength) / 2 - mParam.mCursorGap.px - mParam.mCursorWidth.px
             }
 
             ScaleStyle.BOTTOM -> {
                 if (mParam.mScaleStyle != ScaleStyle.LINE) {
                     return
                 }
+
+                mCursorRectF.mTransX = 80f
+
+                mCursorRectF.mTransY =
+                    paddingTop + (mInterval - linelength) / 2 + linelength + mParam.mCursorGap.px
 
             }
             ScaleStyle.INSIDE -> {
