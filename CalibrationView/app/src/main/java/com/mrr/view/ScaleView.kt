@@ -461,11 +461,27 @@ class ScaleView : View {
                 if (mParam.mScaleStyle != ScaleStyle.CIRCLE) {
                     return
                 }
+
+                var lengthDiff =
+                    ((mCircleRadius * mParam.mScaleNodeWidth) - (mCircleRadius * mParam.mScaleWidth)) / 2
+
+                mCursorRectF.mTransX = mCenterX - mParam.mCursorWidth.px / 2
+
+                mCursorRectF.mTransY =
+                    paddingTop + mCircleRadius * mParam.mScaleWidth + lengthDiff + mParam.mCursorGap.px
             }
             ScaleStyle.OUTSIDE -> {
                 if (mParam.mScaleStyle != ScaleStyle.CIRCLE) {
                     return
                 }
+
+                var lengthDiff =
+                    ((mCircleRadius * mParam.mScaleNodeWidth) - (mCircleRadius * mParam.mScaleWidth)) / 2
+
+                mCursorRectF.mTransX = mCenterX - mParam.mCursorWidth.px / 2
+
+                mCursorRectF.mTransY =
+                    mCenterY - mCircleRadius + lengthDiff - mParam.mCursorGap.px - mParam.mCursorWidth.px
             }
         }
 
