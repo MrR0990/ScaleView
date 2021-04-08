@@ -10,6 +10,7 @@
     <com.mrr.view.ScaleView
         android:layout_width="300dp"
         android:layout_height="70dp"
+        android:background="@color/yellow"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingBottom="30dp"
@@ -87,6 +88,7 @@
     <com.mrr.view.ScaleView
         android:layout_width="70dp"
         android:layout_height="400dp"
+        android:background="@color/yellow"
         android:paddingTop="10dp"
         android:paddingRight="30dp"
         android:paddingBottom="10dp"

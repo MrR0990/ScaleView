@@ -234,7 +234,7 @@ class ScaleView : View {
                 mInterval = mWidth - paddingLeft - paddingRight
                 nodeLength = mInterval * mParam.mScaleNodeWidth
                 linelength = mInterval * mParam.mScaleWidth
-                mTouchY = -mParam.mCursorWidth.px / 2 + mHalfCalibration
+                mTouchY = 0f
 
             } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
 
@@ -243,7 +243,7 @@ class ScaleView : View {
                 mInterval = mHeight - paddingTop - paddingBottom
                 nodeLength = mInterval * mParam.mScaleNodeWidth
                 linelength = mInterval * mParam.mScaleWidth
-                mTouchX = paddingLeft.toFloat() + mHalfCalibration
+                mTouchX = 0f
             }
 
         } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
@@ -260,8 +260,6 @@ class ScaleView : View {
 
 
         mHalfCalibration = mParam.mScaleThick / 2
-
-        mTouchY = (mPaddingTop + mPerInterval).toFloat()
 
         mProgressListener = mParam.mProgressListener
     }
@@ -455,7 +453,7 @@ class ScaleView : View {
                     paddingLeft + (mInterval - linelength) / 2 - mParam.mCursorGap.px - mParam.mCursorWidth.px
 
 
-                mCursorRectF.mTransY = mTouchY - mParam.mCursorWidth.px / 2
+                mCursorRectF.mTransY = mTouchY
 
             }
             ScaleStyle.RIGHT -> {
@@ -465,7 +463,7 @@ class ScaleView : View {
                 mCursorRectF.mTransX =
                     paddingLeft + (mInterval - linelength) / 2 + linelength + mParam.mCursorGap.px
 
-                mCursorRectF.mTransY = mTouchY - mParam.mCursorWidth.px / 2
+                mCursorRectF.mTransY = mTouchY
 
 
             }
@@ -474,7 +472,7 @@ class ScaleView : View {
                     return
                 }
 
-                mCursorRectF.mTransX = mTouchX - mParam.mCursorWidth.px / 2
+                mCursorRectF.mTransX = mTouchX
 
                 mCursorRectF.mTransY =
                     paddingTop + (mInterval - linelength) / 2 - mParam.mCursorGap.px - mParam.mCursorWidth.px
@@ -484,7 +482,7 @@ class ScaleView : View {
                     return
                 }
 
-                mCursorRectF.mTransX = mTouchX - mParam.mCursorWidth.px / 2
+                mCursorRectF.mTransX = mTouchX
 
                 mCursorRectF.mTransY =
                     paddingTop + (mInterval - linelength) / 2 + linelength + mParam.mCursorGap.px
@@ -529,6 +527,11 @@ class ScaleView : View {
             mCursorRectF.mTransY
         );
         canvas?.drawBitmap(mCursorBitmap, mCursorMatrix, null)
+
+        Log.d(
+            TAG,
+            "drawCursor :  mParam.mCursorLoc: ${mParam.mCursorLoc} mTransX : ${mCursorRectF.mTransX} mTransY : ${mCursorRectF.mTransY}"
+        )
     }
 
 
@@ -559,7 +562,7 @@ class ScaleView : View {
             }
         }
 
-        Log.d(TAG, "mTouchY: $mTouchY")
+        Log.d(TAG, "onTouchEvent mTouchX ; $mTouchX mTouchY: $mTouchY")
         invalidate()
 
         mProgressListener?.progressChanged(mTouchY)
