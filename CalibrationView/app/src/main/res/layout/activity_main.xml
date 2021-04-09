@@ -8,11 +8,10 @@
     tools:context=".MainActivity">
 
     <com.mrr.view.ScaleView
-        android:layout_width="300dp"
+        android:layout_width="320dp"
         android:layout_height="70dp"
-        android:background="@color/yellow"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:paddingBottom="30dp"
         app:cursorDrawable="@drawable/brightness"
         app:cursorGap="0dp"
@@ -27,11 +26,11 @@
 
 
     <com.mrr.view.ScaleView
-        android:layout_width="300dp"
+        android:layout_width="320dp"
         android:layout_height="70dp"
-        android:paddingLeft="10dp"
+        android:paddingLeft="20dp"
         android:paddingTop="30dp"
-        android:paddingRight="10dp"
+        android:paddingRight="20dp"
         app:cursorDrawable="@drawable/brightness"
         app:cursorGap="2dp"
         app:cursorLoc="top"
@@ -87,11 +86,10 @@
 
     <com.mrr.view.ScaleView
         android:layout_width="70dp"
-        android:layout_height="400dp"
-        android:background="@color/yellow"
-        android:paddingTop="10dp"
+        android:layout_height="420dp"
+        android:paddingTop="20dp"
         android:paddingRight="30dp"
-        android:paddingBottom="10dp"
+        android:paddingBottom="20dp"
         app:cursorDrawable="@drawable/brightness"
         app:cursorGap="0dp"
         app:cursorLoc="right"
@@ -107,10 +105,10 @@
 
     <com.mrr.view.ScaleView
         android:layout_width="70dp"
-        android:layout_height="400dp"
+        android:layout_height="420dp"
         android:paddingLeft="30dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
         app:cursorDrawable="@drawable/brightness"
         app:cursorGap="0dp"
         app:cursorLoc="left"

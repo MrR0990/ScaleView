@@ -234,7 +234,7 @@ class ScaleView : View {
                 mInterval = mWidth - paddingLeft - paddingRight
                 nodeLength = mInterval * mParam.mScaleNodeWidth
                 linelength = mInterval * mParam.mScaleWidth
-                mTouchY = 0f
+                mTouchY = paddingTop.toFloat()
 
             } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
 
@@ -243,7 +243,7 @@ class ScaleView : View {
                 mInterval = mHeight - paddingTop - paddingBottom
                 nodeLength = mInterval * mParam.mScaleNodeWidth
                 linelength = mInterval * mParam.mScaleWidth
-                mTouchX = 0f
+                mTouchX = paddingLeft.toFloat()
             }
 
         } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
@@ -258,9 +258,7 @@ class ScaleView : View {
             mCenterY = mHeight / 2
         }
 
-
         mHalfCalibration = mParam.mScaleThick / 2
-
         mProgressListener = mParam.mProgressListener
     }
 
@@ -453,7 +451,7 @@ class ScaleView : View {
                     paddingLeft + (mInterval - linelength) / 2 - mParam.mCursorGap.px - mParam.mCursorWidth.px
 
 
-                mCursorRectF.mTransY = mTouchY
+                mCursorRectF.mTransY = mTouchY - mParam.mCursorWidth.px / 2
 
             }
             ScaleStyle.RIGHT -> {
@@ -463,7 +461,7 @@ class ScaleView : View {
                 mCursorRectF.mTransX =
                     paddingLeft + (mInterval - linelength) / 2 + linelength + mParam.mCursorGap.px
 
-                mCursorRectF.mTransY = mTouchY
+                mCursorRectF.mTransY = mTouchY - mParam.mCursorWidth.px / 2
 
 
             }
@@ -472,7 +470,7 @@ class ScaleView : View {
                     return
                 }
 
-                mCursorRectF.mTransX = mTouchX
+                mCursorRectF.mTransX = mTouchX - mParam.mCursorWidth.px / 2
 
                 mCursorRectF.mTransY =
                     paddingTop + (mInterval - linelength) / 2 - mParam.mCursorGap.px - mParam.mCursorWidth.px
@@ -482,7 +480,7 @@ class ScaleView : View {
                     return
                 }
 
-                mCursorRectF.mTransX = mTouchX
+                mCursorRectF.mTransX = mTouchX - mParam.mCursorWidth.px / 2
 
                 mCursorRectF.mTransY =
                     paddingTop + (mInterval - linelength) / 2 + linelength + mParam.mCursorGap.px
