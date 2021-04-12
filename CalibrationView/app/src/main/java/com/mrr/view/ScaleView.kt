@@ -488,64 +488,15 @@ class ScaleView : View {
                     return
                 }
 
-                val tx: Float = mTouchX - mCenterX
-                val ty: Float = mTouchY - mCenterY
+                mCursorRectF.calculateAttributesInside(
+                    mTouchX,
+                    mTouchY,
+                    mCenterX,
+                    mCenterY,
+                    mCircleRadius,
+                    mParam
+                )
 
-                var t_length = 0.0
-                var a = 0.0
-
-                var diff =
-                    ((mCircleRadius * mParam.mScaleNodeWidth) - (mCircleRadius * mParam.mScaleWidth)) / 2
-
-
-                //处理各个象限以及数轴
-                when {
-                    (tx > 0 && ty < 0) -> {//第一象限
-                        t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-                        a = -Math.acos(tx / t_length)
-                    }
-                    (tx < 0 && ty < 0) -> {//第二象限
-
-                        t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-                        a = -Math.acos(tx / t_length)
-                    }
-                    (tx < 0 && ty > 0) -> {//第三象限
-                        t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-                        a = Math.acos(tx / t_length)
-
-                    }
-                    (tx > 0 && ty > 0) -> {//第四象限
-                        t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-                        a = Math.acos(tx / t_length)
-                    }
-                    (tx > 0 && ty == 0f) -> {//X轴正方向
-
-                        a = 0.0
-                    }
-                    (tx == 0f && ty > 0) -> {//Y轴正方向
-                        a = 0.0
-                    }
-                    (tx < 0 && ty == 0f) -> {//X轴反方向
-                        a = 0.0
-                    }
-                    (tx == 0f && ty < 0) -> {//Y轴反方向
-                        a = 0.0
-                    }
-                }
-
-
-                rotatedCenterX =
-                    (mCenterX + (mCircleRadius - mCircleRadius * mParam.mScaleWidth - diff)
-                            * Math.cos(a)).toFloat()
-
-                rotatedCenterY =
-                    (mCenterY + (mCircleRadius - mCircleRadius * mParam.mScaleWidth - diff)
-                            * Math.sin(a)).toFloat()
-
-                mCursorRectF.mTransX = rotatedCenterX - mParam.mCursorWidth.px
-                mCursorRectF.mTransY = rotatedCenterY - mParam.mCursorWidth.px / 2
-
-                rotatedDegress = (270).toFloat()
 
             }
             ScaleStyle.OUTSIDE -> {
@@ -576,9 +527,9 @@ class ScaleView : View {
 
         if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
             mCursorMatrix.postRotate(
-                rotatedDegress,
-                rotatedCenterX,
-                rotatedCenterY
+                mCursorRectF.mRoutateDegress,
+                mCursorRectF.mRoutateCenterX,
+                mCursorRectF.mRoutateCenterY
             )
         }
 

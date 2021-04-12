@@ -25,29 +25,23 @@ class CursorRectF {
         mCenterY: Float,
         mCircleRadius: Float,
         mScaleParam: ScaleParam,
-        diff: Float
     ) {
+        val diff =
+            ((mCircleRadius * mScaleParam.mScaleNodeWidth) - (mCircleRadius * mScaleParam.mScaleWidth)) / 2
+
         val tx: Float = mTouchX - mCenterX
         val ty: Float = mTouchY - mCenterY
 
         var t_length = 0.0
         var a = 0.0
 
+
         //处理各个象限以及数轴
         when {
             (tx > 0 && ty < 0) -> {//第一象限
                 t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
                 a = -Math.acos(tx / t_length)
-                mRoutateCenterX =
-                    (mCenterX + (mCircleRadius - mCircleRadius * mScaleParam.mScaleWidth - diff)
-                            * Math.cos(a)).toFloat()
 
-                mRoutateCenterY =
-                    (mCenterY + (mCircleRadius - mCircleRadius * mScaleParam.mScaleWidth - diff)
-                            * Math.sin(a)).toFloat()
-
-                mTransX = mRoutateCenterX - mScaleParam.mCursorWidth.px
-                mTransY = mRoutateCenterY - mScaleParam.mCursorWidth.px / 2
             }
             (tx < 0 && ty < 0) -> {//第二象限
 
@@ -64,7 +58,6 @@ class CursorRectF {
                 a = Math.acos(tx / t_length)
             }
             (tx > 0 && ty == 0f) -> {//X轴正方向
-
                 a = 0.0
             }
             (tx == 0f && ty > 0) -> {//Y轴正方向
@@ -79,18 +72,19 @@ class CursorRectF {
         }
 
 
-        rotatedCenterX =
-            (mCenterX + (mCircleRadius - mCircleRadius * mParam.mScaleWidth - diff)
+        mRoutateCenterX =
+            (mCenterX + (mCircleRadius - mCircleRadius * mScaleParam.mScaleWidth - diff)
                     * Math.cos(a)).toFloat()
 
-        rotatedCenterY =
-            (mCenterY + (mCircleRadius - mCircleRadius * mParam.mScaleWidth - diff)
+        mRoutateCenterY =
+            (mCenterY + (mCircleRadius - mCircleRadius * mScaleParam.mScaleWidth - diff)
                     * Math.sin(a)).toFloat()
 
-        mCursorRectF.mTransX = rotatedCenterX - mParam.mCursorWidth.px
-        mCursorRectF.mTransY = rotatedCenterY - mParam.mCursorWidth.px / 2
+        mTransX = mRoutateCenterX - mScaleParam.mCursorWidth.px / 2
+        mTransY = mRoutateCenterY - mScaleParam.mCursorWidth.px / 2
 
-        rotatedDegress = (270).toFloat()
+
+        mRoutateDegress = (270).toFloat()
     }
 
     /**
