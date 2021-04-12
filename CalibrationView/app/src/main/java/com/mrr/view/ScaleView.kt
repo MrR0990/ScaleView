@@ -8,6 +8,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import com.mrr.view.UnitConversion.Companion.px
 
 /**
  * 1. 画线性刻度
@@ -51,7 +52,12 @@ class ScaleView : View {
     /**
      * 圆形刻度之间的角度
      */
-    var mPreAngle = 0f
+    var mPreDegrees = 0f
+
+    /**
+     * 在圆形刻度中,游标的初始角度,正东方向为0度
+     */
+    var mCursorDegress = 0f
 
     /**
      * 圆形刻度的半径
@@ -111,18 +117,6 @@ class ScaleView : View {
      */
     val mClipRect = RectF()
 
-    //单位转换
-    val Float.dp: Float
-        get() = (this / Resources.getSystem().displayMetrics.density)
-    val Float.px: Float
-        get() = (this * Resources.getSystem().displayMetrics.density)
-
-    val Float.sp2px: Float
-        get() = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP,
-            this.toFloat(),
-            resources.displayMetrics
-        )
 
     constructor(context: Context?) : this(context, null)
 
@@ -247,7 +241,7 @@ class ScaleView : View {
             }
 
         } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
-            mPreAngle = (Math.PI * 2 / mParam.mTotalProgress).toFloat()
+            mPreDegrees = (Math.PI * 2 / mParam.mTotalProgress).toFloat()
             mCircleRadius =
                 Math.min(
                     mWidth - paddingLeft - paddingRight,
@@ -256,6 +250,8 @@ class ScaleView : View {
 
             mCenterX = mWidth / 2
             mCenterY = mHeight / 2
+            mTouchX = mCenterX + mCircleRadius
+            mTouchY = mCenterY
         }
 
         mHalfCalibration = mParam.mScaleThick / 2
@@ -284,25 +280,25 @@ class ScaleView : View {
                 mClipProgress = mDrawSpace * (mTouchY - paddingTop) / mDrawSpace
 
                 mClipRect.set(0f, 0f, mWidth, mTouchY)
-                drawLineCalibration(canvas, mChangeColorPaint, mClipRect)
+                drawLineScale(canvas, mChangeColorPaint, mClipRect)
 
                 mClipRect.set(0f, mTouchY, mWidth, mHeight)
-                drawLineCalibration(canvas, mOriginColorPaint, mClipRect)
+                drawLineScale(canvas, mOriginColorPaint, mClipRect)
 
             } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
 
                 mClipProgress = mDrawSpace * (mTouchX - paddingLeft) / mDrawSpace
 
                 mClipRect.set(0f, 0f, mTouchX, mHeight)
-                drawLineCalibration(canvas, mChangeColorPaint, mClipRect)
+                drawLineScale(canvas, mChangeColorPaint, mClipRect)
 
                 mClipRect.set(mTouchX, 0f, mWidth, mHeight)
-                drawLineCalibration(canvas, mOriginColorPaint, mClipRect)
+                drawLineScale(canvas, mOriginColorPaint, mClipRect)
             }
 
 
         } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
-            drawCircleCalibration(canvas, mOriginColorPaint, 0f, mHeight)
+            drawCircleScale(canvas, mOriginColorPaint, 0f, mHeight)
         }
 
         drawCursor(canvas)
@@ -321,7 +317,7 @@ class ScaleView : View {
     private var startY = 0f
     private var stopY = 0f
 
-    private fun drawCircleCalibration(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
+    private fun drawCircleScale(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
 
         canvas?.drawCircle(mWidth / 2, mHeight / 2, mCircleRadius, mCursorPaint)
 
@@ -332,7 +328,7 @@ class ScaleView : View {
 
         for (index in 0..mParam.mTotalProgress - 1) {
             // 初始角度 + 当前旋转的角度
-            val angle = (index * mPreAngle).toDouble()
+            val angle = (index * mPreDegrees).toDouble()
 
             //从外往内绘制
             if (index % mParam.mUnitScale == 0) {
@@ -355,6 +351,7 @@ class ScaleView : View {
             }
 
 
+
             canvas!!.drawLine(
                 startX, startY, stopX, stopY,
                 mOriginColorPaint
@@ -367,7 +364,7 @@ class ScaleView : View {
     /**
      * 画线性的刻度
      */
-    private fun drawLineCalibration(canvas: Canvas?, paint: Paint, clipRectF: RectF) {
+    private fun drawLineScale(canvas: Canvas?, paint: Paint, clipRectF: RectF) {
 
 
         canvas!!.save()
@@ -491,13 +488,65 @@ class ScaleView : View {
                     return
                 }
 
-                var lengthDiff =
+                val tx: Float = mTouchX - mCenterX
+                val ty: Float = mTouchY - mCenterY
+
+                var t_length = 0.0
+                var a = 0.0
+
+                var diff =
                     ((mCircleRadius * mParam.mScaleNodeWidth) - (mCircleRadius * mParam.mScaleWidth)) / 2
 
-                mCursorRectF.mTransX = mCenterX - mParam.mCursorWidth.px / 2
 
-                mCursorRectF.mTransY =
-                    paddingTop + mCircleRadius * mParam.mScaleWidth + lengthDiff + mParam.mCursorGap.px
+                //处理各个象限以及数轴
+                when {
+                    (tx > 0 && ty < 0) -> {//第一象限
+                        t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
+                        a = -Math.acos(tx / t_length)
+                    }
+                    (tx < 0 && ty < 0) -> {//第二象限
+
+                        t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
+                        a = -Math.acos(tx / t_length)
+                    }
+                    (tx < 0 && ty > 0) -> {//第三象限
+                        t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
+                        a = Math.acos(tx / t_length)
+
+                    }
+                    (tx > 0 && ty > 0) -> {//第四象限
+                        t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
+                        a = Math.acos(tx / t_length)
+                    }
+                    (tx > 0 && ty == 0f) -> {//X轴正方向
+
+                        a = 0.0
+                    }
+                    (tx == 0f && ty > 0) -> {//Y轴正方向
+                        a = 0.0
+                    }
+                    (tx < 0 && ty == 0f) -> {//X轴反方向
+                        a = 0.0
+                    }
+                    (tx == 0f && ty < 0) -> {//Y轴反方向
+                        a = 0.0
+                    }
+                }
+
+
+                rotatedCenterX =
+                    (mCenterX + (mCircleRadius - mCircleRadius * mParam.mScaleWidth - diff)
+                            * Math.cos(a)).toFloat()
+
+                rotatedCenterY =
+                    (mCenterY + (mCircleRadius - mCircleRadius * mParam.mScaleWidth - diff)
+                            * Math.sin(a)).toFloat()
+
+                mCursorRectF.mTransX = rotatedCenterX - mParam.mCursorWidth.px
+                mCursorRectF.mTransY = rotatedCenterY - mParam.mCursorWidth.px / 2
+
+                rotatedDegress = (270).toFloat()
+
             }
             ScaleStyle.OUTSIDE -> {
                 if (mParam.mScaleStyle != ScaleStyle.CIRCLE) {
@@ -524,6 +573,15 @@ class ScaleView : View {
             mCursorRectF.mTransX,
             mCursorRectF.mTransY
         );
+
+        if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
+            mCursorMatrix.postRotate(
+                rotatedDegress,
+                rotatedCenterX,
+                rotatedCenterY
+            )
+        }
+
         canvas?.drawBitmap(mCursorBitmap, mCursorMatrix, null)
 
         Log.d(
