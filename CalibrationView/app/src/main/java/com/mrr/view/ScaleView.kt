@@ -535,10 +535,6 @@ class ScaleView : View {
 
         canvas?.drawBitmap(mCursorBitmap, mCursorMatrix, null)
 
-        Log.d(
-            TAG,
-            "drawCursor :  mParam.mCursorLoc: ${mParam.mCursorLoc} mTransX : ${mCursorRectF.mTransX} mTransY : ${mCursorRectF.mTransY}"
-        )
     }
 
 
