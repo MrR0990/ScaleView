@@ -1,13 +1,19 @@
-package com.mrr.view
+package com.mrr.scaleview.rectf
 
-import com.mrr.view.UnitConversion.Companion.px
+import android.graphics.Matrix
+import com.mrr.scaleview.enum.ScaleAttrEnum
+import com.mrr.scaleview.attr.ScaleViewAttr
+import com.mrr.scaleview.util.UnitConversion.Companion.px
 
+/**
+ * 游标方位属性
+ */
 class CursorRectF(var mProgressChangeListener: ProgressChangeListener?) {
 
     private val TAG = "CursorRectF"
 
     /**
-     * 游标变换位置的各个维度
+     * 游标变换的各个维度
      */
     var mScaleX = 0f;
     var mScaleY = 0f;
@@ -25,7 +31,7 @@ class CursorRectF(var mProgressChangeListener: ProgressChangeListener?) {
     private var degress = 0.0//角度
     private var diff = 0f;
     private var cursorCircleRadius = 0f
-
+    private val mCursorMatrix = Matrix()
 
     /**
      * 计算圆形游标的各个属性
@@ -36,7 +42,7 @@ class CursorRectF(var mProgressChangeListener: ProgressChangeListener?) {
         centerX: Float,
         centerY: Float,
         circleRadius: Float,
-        p: ScaleParam,
+        p: ScaleViewAttr,
     ) {
 
         tx = Math.abs(touchX - centerX)
@@ -52,12 +58,12 @@ class CursorRectF(var mProgressChangeListener: ProgressChangeListener?) {
         cursorCircleRadius = 0f
 
 
-        if (p.mCursorLoc == ScaleStyle.INSIDE) {
+        if (p.mCursorLoc == ScaleAttrEnum.INSIDE) {
 
             cursorCircleRadius =
                 circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2//游标绘制时候的半径
 
-        } else if (p.mCursorLoc == ScaleStyle.OUTSIDE) {
+        } else if (p.mCursorLoc == ScaleAttrEnum.OUTSIDE) {
 
             cursorCircleRadius =
                 circleRadius - diff + p.mCursorWidth.px / 2//游标绘制时候的半径
@@ -104,11 +110,11 @@ class CursorRectF(var mProgressChangeListener: ProgressChangeListener?) {
         mTransY = mRoutateCenterY - p.mCursorWidth.px / 2
 
 
-        if (p.mCursorLoc == ScaleStyle.INSIDE) {
+        if (p.mCursorLoc == ScaleAttrEnum.INSIDE) {
 
             mRoutateDegress = Math.toDegrees(angle - Math.PI / 2).toFloat()
 
-        } else if (p.mCursorLoc == ScaleStyle.OUTSIDE) {
+        } else if (p.mCursorLoc == ScaleAttrEnum.OUTSIDE) {
 
             mRoutateDegress = Math.toDegrees(angle + Math.PI / 2).toFloat()
         }

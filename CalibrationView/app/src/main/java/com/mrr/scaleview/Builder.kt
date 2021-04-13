@@ -1,14 +1,16 @@
-package com.mrr.view
+package com.mrr.scaleview
 
 import android.content.Context
+import com.mrr.scaleview.enum.ScaleAttrEnum
+import com.mrr.scaleview.attr.ScaleViewAttr
 import kotlin.jvm.internal.Intrinsics
 
 class Builder {
 
-    var p: ScaleParam;
+    var p: ScaleViewAttr;
 
     constructor(context: Context) {
-        p = ScaleParam()
+        p = ScaleViewAttr()
         p.context = context
     }
 
@@ -25,21 +27,21 @@ class Builder {
     }
 
 
-    fun setCalibrationStyle(var1: ScaleStyle): Builder {
+    fun setCalibrationStyle(var1: ScaleAttrEnum): Builder {
         Intrinsics.checkNotNullParameter(var1, "<set-?>")
         p.mScaleStyle = var1
         return this
     }
 
 
-    fun setCalibrationDirect(var1: ScaleStyle): Builder {
+    fun setCalibrationDirect(var1: ScaleAttrEnum): Builder {
         Intrinsics.checkNotNullParameter(var1, "<set-?>")
         p.mScaleDirect = var1
         return this
     }
 
 
-    fun setCursorLoc(var1: ScaleStyle): Builder {
+    fun setCursorLoc(var1: ScaleAttrEnum): Builder {
         Intrinsics.checkNotNullParameter(var1, "<set-?>")
         p.mCursorLoc = var1
         return this
@@ -81,7 +83,7 @@ class Builder {
         return this
     }
 
-    fun setProgressListener(var1: ScaleParam.ProgressListener): Builder {
+    fun setProgressListener(var1: ScaleViewAttr.ProgressListener): Builder {
         p.mProgressListener = var1
         return this
     }

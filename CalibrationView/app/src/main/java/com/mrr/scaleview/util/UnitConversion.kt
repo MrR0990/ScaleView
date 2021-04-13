@@ -1,12 +1,14 @@
-package com.mrr.view
+package com.mrr.scaleview.util
 
 import android.content.res.Resources
-import android.util.TypedValue
 
+/**
+ * 单位转换
+ */
 class UnitConversion {
 
     companion object {
-        //单位转换
+
         val Float.dp: Float
             get() = (this / Resources.getSystem().displayMetrics.density)
         val Float.px: Float

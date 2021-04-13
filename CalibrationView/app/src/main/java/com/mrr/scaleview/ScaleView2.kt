@@ -1,24 +1,17 @@
-package com.mrr.view
+package com.mrr.scaleview
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
-import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
-import com.mrr.view.UnitConversion.Companion.px
+import com.mrr.scaleview.rectf.CursorRectF
+import com.mrr.scaleview.enum.ScaleAttrEnum
+import com.mrr.scaleview.util.UnitConversion.Companion.px
+import com.mrr.scaleview.attr.ScaleViewAttr
 
-/**
- * 1. 画线性刻度
- * - 解决初始状态游标位置问题
- * - 设置一个背景颜色,看看是不是居中
- * - 绘制刻度节点长度不同效果
- *
- * 2. 画线性游标
- * - 游标按照节点最长的位置绘制
- */
-class ScaleView : View, CursorRectF.ProgressChangeListener {
+class ScaleView2 : View, CursorRectF.ProgressChangeListener {
     val TAG = "ScaleView"
 
     var mContext: Context? = null
@@ -31,9 +24,9 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
     /**
      * 各种属性
      */
-    var mParam = ScaleParam();
+    var mParam = ScaleViewAttr();
 
-    var mProgressListener: ScaleParam.ProgressListener? = null
+    var mProgressListener: ScaleViewAttr.ProgressListener? = null
 
     var mWidth = 0f
     var mHeight = 0f
@@ -54,70 +47,69 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
     var mPreDegrees = 0f
 
     /**
-     * 在圆形刻度中,游标的初始角度,正东方向为0度
-     */
-    var mCursorDegress = 0f
-
-    /**
      * 圆形刻度的半径
      */
     var mCircleRadius = 0f
 
     /**
-     * 每个一个刻度最长可绘制的空间
+     * 每一个刻度最长可绘制的空间
      */
-    var mInterval = 0f
+    private var mInterval = 0f
 
-    var mDrawSpace = 0f
+    private var mDrawSpace = 0f
 
     /**
      * 当前触摸到的位置
      */
-    var mTouchX = 0f;
-    var mTouchY = 0f;
+    private var mTouchX = 0f;
+    private var mTouchY = 0f;
 
     /**
-     * 默认刻度画笔
+     *画笔
      */
-    var mOriginColorPaint = Paint()
-
-    /**
-     * 走过的刻度画笔
-     */
-    var mChangeColorPaint = Paint()
-
-    /**
-     * 游标画笔
-     */
-    var mCursorPaint = Paint()
+    private var mOriginColorPaint = Paint()
+    private var mChangeColorPaint = Paint()
+    private var mCursorPaint = Paint()
 
     /**
      * 是否已经初始化画笔
      */
-    var isInit = false
+    private var isInit = false
 
     // 屏幕最中心的位置
     private var mCenterX = 0f
     private var mCenterY = 0f
 
-    //第一个节点是一个刻度节点
-    var nodeLength = mInterval * mParam.mScaleNodeWidth
+    //第一个节点是一个刻度节点/节点刻度的宽度/高度
+    private var nodeLength = 0f
 
     //普通刻度占组件减去padding之后的宽度/高度
-    var linelength = mInterval * mParam.mScaleWidth
+    private var linelength = 0f
 
-    var mCursorBitmap: Bitmap? = null
 
-    val mCursorMatrix = Matrix()
-    val mCursorRectF = CursorRectF(this)
+    private val mCursorMatrix = Matrix()
+    private val mCursorRectF = CursorRectF(this)
 
     /**
-     * 线性刻度时候切割canvas使用
+     * 线性刻度切割canvas使用
      */
-    val mClipRect = RectF()
+    private val mClipRect = RectF()
 
-    var mCircleProgressAngel = 0.0
+    private var mCircleProgressAngel = 0.0
 
+    private var mClipProgress = 0f
+
+    private var nodeStartX = 0f
+    private var nodeStopX = 0f
+
+    private var nodeStartY = 0f
+    private var nodeStopY = 0f
+
+    private var startX = 0f
+    private var stopX = 0f
+
+    private var startY = 0f
+    private var stopY = 0f
 
     constructor(context: Context?) : this(context, null)
 
@@ -138,13 +130,13 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
         mParam.mScaleNodeWidth =
             typeArray!!.getFloat(R.styleable.ScaleView_scaleNodeWidth, 0.7f)
 
-        mParam.mScaleThick =
+        mParam.mScaleLineWidth =
             typeArray!!.getDimension(R.styleable.ScaleView_scaleThick, 5f)
 
         var cursorDrawableID = typeArray!!.getResourceId(R.styleable.ScaleView_cursorDrawable, 0)
 
         if (cursorDrawableID > 0) {
-            mCursorBitmap = BitmapFactory.decodeResource(resources, cursorDrawableID)
+            mParam.mCursorBitmap = BitmapFactory.decodeResource(resources, cursorDrawableID)
         }
 
         var style = typeArray!!.getInt(R.styleable.ScaleView_scaleStyle, -1)
@@ -201,82 +193,14 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
         Log.d(TAG, "onMeasure : mWidth : $mWidth mHeight : $mHeight")
     }
 
-    private fun initData(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-
-        mWidth = MeasureSpec.getSize(widthMeasureSpec).toFloat()
-        mHeight = MeasureSpec.getSize(heightMeasureSpec).toFloat()
-        setMeasuredDimension(mWidth.toInt(), mHeight.toInt())
-
-        if (null != mCursorBitmap) {
-            mCursorRectF.mScaleX = mParam.mCursorWidth.px / mCursorBitmap!!.width
-            mCursorRectF.mScaleY = mParam.mCursorWidth.px / mCursorBitmap!!.height
-        }
-
-        initPaint()
-
-        if (mParam.mScaleStyle == ScaleStyle.LINE) {
-
-            //刻度线本身占用的空间
-            var calibrationSpace = mParam.mScaleThick * (mParam.mTotalProgress + 1)
-
-            if (mParam.mScaleDirect == ScaleStyle.VERTICAL) {
-
-                //总共的绘制空间
-                mDrawSpace = mHeight - mPaddingTop - mPaddingBottom
-                //刻度之间的缝隙大小
-                mPerInterval = (mDrawSpace - calibrationSpace) / mParam.mTotalProgress
-                //每个一个刻度最长可绘制的空间
-                mInterval = mWidth - paddingLeft - paddingRight
-                nodeLength = mInterval * mParam.mScaleNodeWidth
-                linelength = mInterval * mParam.mScaleWidth
-                mTouchY = paddingTop.toFloat()
-
-            } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
-
-                mDrawSpace = mWidth - mPaddingLeft - paddingRight
-                mPerInterval = (mDrawSpace - calibrationSpace) / mParam.mTotalProgress
-                mInterval = mHeight - paddingTop - paddingBottom
-                nodeLength = mInterval * mParam.mScaleNodeWidth
-                linelength = mInterval * mParam.mScaleWidth
-                mTouchX = paddingLeft.toFloat()
-            }
-
-        } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
-            mPreDegrees = (Math.PI * 2 / mParam.mTotalProgress).toFloat()
-            mCircleRadius =
-                Math.min(
-                    mWidth - paddingLeft - paddingRight,
-                    mHeight - paddingTop - paddingBottom
-                ) / 2
-
-            mCenterX = mWidth / 2
-            mCenterY = mHeight / 2
-            mTouchX = mCenterX + mCircleRadius
-            mTouchY = mCenterY
-        }
-
-        mHalfCalibration = mParam.mScaleThick / 2
-        mProgressListener = mParam.mProgressListener
-    }
-
-
-    var mClipProgress = 0f
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-//        var rect = RectF()
-//        rect.left = mPaddingLeft.toFloat()
-//        rect.top = mPaddingTop.toFloat()
-//        rect.right = (mWidth - mPaddingRight).toFloat()
-//        rect.bottom = (mHeight - mPaddingBottom).toFloat()
-//
-//        canvas?.drawRoundRect(rect, 0f, 0f, mCursorPaint)
-//        drawCalibration(canvas, mChangeColorPaint, 0, mTouchY.toInt())
 
-        if (mParam.mScaleStyle == ScaleStyle.LINE) {
+        if (mParam.mScaleStyle == ScaleAttrEnum.LINE) {
 
-            if (mParam.mScaleDirect == ScaleStyle.VERTICAL) {
+            if (mParam.mScaleDirect == ScaleAttrEnum.VERTICAL) {
 
                 mClipProgress = mDrawSpace * (mTouchY - paddingTop) / mDrawSpace
 
@@ -285,7 +209,7 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
 
                 mClipRect.set(0f, mTouchY, mWidth, mHeight)
 
-            } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
+            } else if (mParam.mScaleDirect == ScaleAttrEnum.HORIZONTAL) {
 
                 mClipProgress = mDrawSpace * (mTouchX - paddingLeft) / mDrawSpace
 
@@ -298,7 +222,7 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
             drawLineScale(canvas, mOriginColorPaint, mClipRect)
             drawCursor(canvas)
 
-        } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
+        } else if (mParam.mScaleStyle == ScaleAttrEnum.CIRCLE) {
             drawCircleScale(canvas, mOriginColorPaint, Math.PI * 2)
             drawCursor(canvas)
             drawCircleScale(
@@ -309,17 +233,6 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
         }
     }
 
-    private var nodeStartX = 0f
-    private var nodeStopX = 0f
-
-    private var nodeStartY = 0f
-    private var nodeStopY = 0f
-
-    private var startX = 0f
-    private var stopX = 0f
-
-    private var startY = 0f
-    private var stopY = 0f
 
     private fun drawCircleScale(canvas: Canvas?, paint: Paint, maxAngel: Double) {
 
@@ -383,7 +296,7 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
         canvas.clipRect(clipRectF)
 
 
-        if (mParam.mScaleDirect == ScaleStyle.VERTICAL) {
+        if (mParam.mScaleDirect == ScaleAttrEnum.VERTICAL) {
 
             nodeStartX = paddingLeft + (mInterval - nodeLength) / 2
             nodeStopX = nodeStartX + nodeLength
@@ -404,12 +317,12 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
                     paint
                 )
 
-                startY += (mPerInterval + mParam.mScaleThick)
-                stopY += (mPerInterval + mParam.mScaleThick)
+                startY += (mPerInterval + mParam.mScaleLineWidth)
+                stopY += (mPerInterval + mParam.mScaleLineWidth)
 
             }
 
-        } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
+        } else if (mParam.mScaleDirect == ScaleAttrEnum.HORIZONTAL) {
 
             nodeStartX = paddingLeft + mHalfCalibration
             nodeStopX = nodeStartX
@@ -430,8 +343,8 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
                     paint
                 )
 
-                nodeStartX += (mPerInterval + mParam.mScaleThick)
-                nodeStopX += (mPerInterval + mParam.mScaleThick)
+                nodeStartX += (mPerInterval + mParam.mScaleLineWidth)
+                nodeStopX += (mPerInterval + mParam.mScaleLineWidth)
 
             }
         }
@@ -442,18 +355,18 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
 
 
     /**
-     * 绘制用户自定义的图片游标
+     * 绘制游标
      *
      */
     private fun drawCursor(canvas: Canvas?) {
 
-        if (null == mCursorBitmap) {
+        if (null == mParam.mCursorBitmap) {
             return
         }
 
         when (mParam.mCursorLoc) {
-            ScaleStyle.LEFT -> {
-                if (mParam.mScaleStyle != ScaleStyle.LINE) {
+            ScaleAttrEnum.LEFT -> {
+                if (mParam.mScaleStyle != ScaleAttrEnum.LINE) {
                     return
                 }
                 mCursorRectF.mTransX =
@@ -463,8 +376,8 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
                 mCursorRectF.mTransY = mTouchY - mParam.mCursorWidth.px / 2
 
             }
-            ScaleStyle.RIGHT -> {
-                if (mParam.mScaleStyle != ScaleStyle.LINE) {
+            ScaleAttrEnum.RIGHT -> {
+                if (mParam.mScaleStyle != ScaleAttrEnum.LINE) {
                     return
                 }
                 mCursorRectF.mTransX =
@@ -472,10 +385,9 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
 
                 mCursorRectF.mTransY = mTouchY - mParam.mCursorWidth.px / 2
 
-
             }
-            ScaleStyle.TOP -> {
-                if (mParam.mScaleStyle != ScaleStyle.LINE) {
+            ScaleAttrEnum.TOP -> {
+                if (mParam.mScaleStyle != ScaleAttrEnum.LINE) {
                     return
                 }
 
@@ -484,8 +396,8 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
                 mCursorRectF.mTransY =
                     paddingTop + (mInterval - linelength) / 2 - mParam.mCursorGap.px - mParam.mCursorWidth.px
             }
-            ScaleStyle.BOTTOM -> {
-                if (mParam.mScaleStyle != ScaleStyle.LINE) {
+            ScaleAttrEnum.BOTTOM -> {
+                if (mParam.mScaleStyle != ScaleAttrEnum.LINE) {
                     return
                 }
 
@@ -495,8 +407,8 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
                     paddingTop + (mInterval - linelength) / 2 + linelength + mParam.mCursorGap.px
 
             }
-            ScaleStyle.INSIDE, ScaleStyle.OUTSIDE -> {
-                if (mParam.mScaleStyle != ScaleStyle.CIRCLE) {
+            ScaleAttrEnum.INSIDE, ScaleAttrEnum.OUTSIDE -> {
+                if (mParam.mScaleStyle != ScaleAttrEnum.CIRCLE) {
                     return
                 }
 
@@ -525,7 +437,7 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
             mCursorRectF.mTransY
         );
 
-        if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
+        if (mParam.mScaleStyle == ScaleAttrEnum.CIRCLE) {
             mCursorMatrix.postRotate(
                 mCursorRectF.mRoutateDegress,
                 mCursorRectF.mRoutateCenterX,
@@ -533,7 +445,7 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
             )
         }
 
-        canvas?.drawBitmap(mCursorBitmap, mCursorMatrix, null)
+        canvas?.drawBitmap(mParam.mCursorBitmap, mCursorMatrix, null)
 
     }
 
@@ -565,11 +477,68 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
             }
         }
 
-        Log.d(TAG, "onTouchEvent mTouchX ; $mTouchX mTouchY: $mTouchY")
         invalidate()
 
         mProgressListener?.progressChanged(mTouchY)
         return true
+    }
+
+    private fun initData(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+
+        mWidth = MeasureSpec.getSize(widthMeasureSpec).toFloat()
+        mHeight = MeasureSpec.getSize(heightMeasureSpec).toFloat()
+        setMeasuredDimension(mWidth.toInt(), mHeight.toInt())
+
+        if (null != mParam.mCursorBitmap) {
+            mCursorRectF.mScaleX = mParam.mCursorWidth.px / mParam.mCursorBitmap!!.width
+            mCursorRectF.mScaleY = mParam.mCursorWidth.px / mParam.mCursorBitmap!!.height
+        }
+
+        initPaint()
+
+        if (mParam.mScaleStyle == ScaleAttrEnum.LINE) {
+
+            //刻度线本身占用的空间
+            var calibrationSpace = mParam.mScaleLineWidth * (mParam.mTotalProgress + 1)
+
+            if (mParam.mScaleDirect == ScaleAttrEnum.VERTICAL) {
+
+                //总共的绘制空间
+                mDrawSpace = mHeight - mPaddingTop - mPaddingBottom
+                //刻度之间的缝隙大小
+                mPerInterval = (mDrawSpace - calibrationSpace) / mParam.mTotalProgress
+                //每个一个刻度最长可绘制的空间
+                mInterval = mWidth - paddingLeft - paddingRight
+                nodeLength = mInterval * mParam.mScaleNodeWidth
+                linelength = mInterval * mParam.mScaleWidth
+                mTouchY = paddingTop.toFloat()
+
+            } else if (mParam.mScaleDirect == ScaleAttrEnum.HORIZONTAL) {
+
+                mDrawSpace = mWidth - mPaddingLeft - paddingRight
+                mPerInterval = (mDrawSpace - calibrationSpace) / mParam.mTotalProgress
+                mInterval = mHeight - paddingTop - paddingBottom
+                nodeLength = mInterval * mParam.mScaleNodeWidth
+                linelength = mInterval * mParam.mScaleWidth
+                mTouchX = paddingLeft.toFloat()
+            }
+
+        } else if (mParam.mScaleStyle == ScaleAttrEnum.CIRCLE) {
+            mPreDegrees = (Math.PI * 2 / mParam.mTotalProgress).toFloat()
+            mCircleRadius =
+                Math.min(
+                    mWidth - paddingLeft - paddingRight,
+                    mHeight - paddingTop - paddingBottom
+                ) / 2
+
+            mCenterX = mWidth / 2
+            mCenterY = mHeight / 2
+            mTouchX = mCenterX + mCircleRadius
+            mTouchY = mCenterY
+        }
+
+        mHalfCalibration = mParam.mScaleLineWidth / 2
+        mProgressListener = mParam.mProgressListener
     }
 
 
@@ -577,12 +546,12 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
         mOriginColorPaint.isAntiAlias = true
         mOriginColorPaint.style = Paint.Style.STROKE
         mOriginColorPaint.color = mParam.mDefaultColor
-        mOriginColorPaint.strokeWidth = mParam.mScaleThick
+        mOriginColorPaint.strokeWidth = mParam.mScaleLineWidth
 
         mChangeColorPaint.isAntiAlias = true
         mChangeColorPaint.style = Paint.Style.STROKE
         mChangeColorPaint.color = mParam.mProgressColor
-        mChangeColorPaint.strokeWidth = mParam.mScaleThick
+        mChangeColorPaint.strokeWidth = mParam.mScaleLineWidth
 
 
         mCursorPaint.isAntiAlias = true
@@ -592,11 +561,11 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
 
     fun setCalibrationStyle(style: Int) {
         when (style) {
-            ScaleStyle.LINE.value -> {
-                mParam.mScaleStyle = ScaleStyle.LINE
+            ScaleAttrEnum.LINE.value -> {
+                mParam.mScaleStyle = ScaleAttrEnum.LINE
             }
-            ScaleStyle.CIRCLE.value -> {
-                mParam.mScaleStyle = ScaleStyle.CIRCLE
+            ScaleAttrEnum.CIRCLE.value -> {
+                mParam.mScaleStyle = ScaleAttrEnum.CIRCLE
             }
         }
 
@@ -604,11 +573,11 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
 
     fun setCalibrationDirect(direct: Int) {
         when (direct) {
-            ScaleStyle.HORIZONTAL.value -> {
-                mParam.mScaleDirect = ScaleStyle.HORIZONTAL
+            ScaleAttrEnum.HORIZONTAL.value -> {
+                mParam.mScaleDirect = ScaleAttrEnum.HORIZONTAL
             }
-            ScaleStyle.VERTICAL.value -> {
-                mParam.mScaleDirect = ScaleStyle.VERTICAL
+            ScaleAttrEnum.VERTICAL.value -> {
+                mParam.mScaleDirect = ScaleAttrEnum.VERTICAL
             }
         }
 
@@ -616,35 +585,28 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
 
     fun setCursorLoc(loc: Int) {
         when (loc) {
-            ScaleStyle.LEFT.value -> {
-                mParam.mCursorLoc = ScaleStyle.LEFT
+            ScaleAttrEnum.LEFT.value -> {
+                mParam.mCursorLoc = ScaleAttrEnum.LEFT
             }
-            ScaleStyle.RIGHT.value -> {
-                mParam.mCursorLoc = ScaleStyle.RIGHT
+            ScaleAttrEnum.RIGHT.value -> {
+                mParam.mCursorLoc = ScaleAttrEnum.RIGHT
             }
-            ScaleStyle.TOP.value -> {
-                mParam.mCursorLoc = ScaleStyle.TOP
+            ScaleAttrEnum.TOP.value -> {
+                mParam.mCursorLoc = ScaleAttrEnum.TOP
             }
-            ScaleStyle.BOTTOM.value -> {
-                mParam.mCursorLoc = ScaleStyle.BOTTOM
+            ScaleAttrEnum.BOTTOM.value -> {
+                mParam.mCursorLoc = ScaleAttrEnum.BOTTOM
             }
-            ScaleStyle.INSIDE.value -> {
-                mParam.mCursorLoc = ScaleStyle.INSIDE
+            ScaleAttrEnum.INSIDE.value -> {
+                mParam.mCursorLoc = ScaleAttrEnum.INSIDE
             }
-            ScaleStyle.OUTSIDE.value -> {
-                mParam.mCursorLoc = ScaleStyle.OUTSIDE
+            ScaleAttrEnum.OUTSIDE.value -> {
+                mParam.mCursorLoc = ScaleAttrEnum.OUTSIDE
             }
         }
 
     }
 
-    private fun sp2px(sp: Int): Float {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP,
-            sp.toFloat(),
-            resources.displayMetrics
-        )
-    }
 
     override fun progressChange(curAngel: Double) {
         mCircleProgressAngel = curAngel

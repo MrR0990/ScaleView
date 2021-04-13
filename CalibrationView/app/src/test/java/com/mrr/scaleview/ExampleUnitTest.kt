@@ -1,4 +1,4 @@
-package com.mrr.view
+package com.mrr.scaleview
 
 import org.junit.Test
 

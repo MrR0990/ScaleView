@@ -1,9 +1,10 @@
-package com.mrr.view
+package com.mrr.scaleview.enum
 
 /**
  * 刻度样式的配置
  */
-enum class ScaleStyle(val value: Int) {
+enum class ScaleAttrEnum(val value: Int) {
+
     /**
      * 线性刻度使用,是横向绘制还是竖向绘制
      */
@@ -35,5 +36,20 @@ enum class ScaleStyle(val value: Int) {
     BOTTOM(7),
     INSIDE(8),
     OUTSIDE(9),
-    NONE(10)
+    NONE(10),
+
+
+    /**
+     * 线性刻度方向
+     */
+    LEFT_TO_RIGHT(11),
+    RIGHT_TO_LEFT(12),
+    TOP_TO_BOTTOM(13),
+    BOTTOM_TO_TOP(14),
+
+    /**
+     * 圆形刻度方向
+     */
+    CLOCK_WISE(15),
+    COUNTER_CLOCKWISE(16)
 }

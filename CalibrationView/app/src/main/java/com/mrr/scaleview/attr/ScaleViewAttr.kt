@@ -1,11 +1,21 @@
-package com.mrr.view
+package com.mrr.scaleview.attr
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
+import com.mrr.scaleview.enum.ScaleAttrEnum
 
-class ScaleParam {
+class ScaleViewAttr {
 
     var context: Context? = null
+
+    //基本属性
+    var mWidth = 0f
+    var mHeight = 0f
+    var mPaddingLeft = 0
+    var mPaddingRight = 0
+    var mPaddingTop = 0
+    var mPaddingBottom = 0
 
     /**
      * 普通刻度占组件减去padding之后的宽度/高度的比例
@@ -18,22 +28,22 @@ class ScaleParam {
     var mScaleNodeWidth = 0.7f
 
     /**
-     * 刻度线的粗细
+     * 刻度线线条宽度
      */
-    var mScaleThick = 5f
+    var mScaleLineWidth = 5f
 
 
     /**
      * 刻度样式,默认为线性样式
      */
-    var mScaleStyle = ScaleStyle.LINE
+    var mScaleStyle = ScaleAttrEnum.LINE
 
     /**
      * 线性刻度的方向
      * HORIZONTAL
      * VERTICAL
      */
-    var mScaleDirect = ScaleStyle.HORIZONTAL
+    var mScaleDirect = ScaleAttrEnum.HORIZONTAL
 
     /**
      * 游标位置
@@ -44,7 +54,7 @@ class ScaleParam {
      * OUTSIDE:圆形刻度的外侧
      *
      */
-    var mCursorLoc = ScaleStyle.NONE
+    var mCursorLoc = ScaleAttrEnum.NONE
 
     /**
      * 游标的宽度
@@ -82,23 +92,26 @@ class ScaleParam {
 
     var mScaleMarkSize = 0f
 
+    var mCursorBitmap: Bitmap? = null
 
-    fun apply(param: ScaleParam) {
-        param.context = this.context
-        param.mScaleWidth = this.mScaleWidth
-        param.mScaleThick = this.mScaleThick
-        param.mScaleNodeWidth = this.mScaleNodeWidth
-        param.mScaleStyle = this.mScaleStyle
-        param.mScaleDirect = this.mScaleDirect
-        param.mCursorLoc = this.mCursorLoc
-        param.mCursorWidth = this.mCursorWidth
-        param.mCursorGap = this.mCursorGap
-        param.mTotalProgress = this.mTotalProgress
-        param.mUnitScale = this.mUnitScale
-        param.mDefaultColor = this.mDefaultColor
-        param.mProgressColor = this.mProgressColor
-        param.mScaleMarkSize = this.mScaleMarkSize
-        param.mProgressListener = this.mProgressListener
+
+    fun apply(viewAttr: ScaleViewAttr) {
+        viewAttr.context = this.context
+        viewAttr.mScaleWidth = this.mScaleWidth
+        viewAttr.mScaleLineWidth = this.mScaleLineWidth
+        viewAttr.mScaleNodeWidth = this.mScaleNodeWidth
+        viewAttr.mScaleStyle = this.mScaleStyle
+        viewAttr.mScaleDirect = this.mScaleDirect
+        viewAttr.mCursorLoc = this.mCursorLoc
+        viewAttr.mCursorWidth = this.mCursorWidth
+        viewAttr.mCursorGap = this.mCursorGap
+        viewAttr.mTotalProgress = this.mTotalProgress
+        viewAttr.mUnitScale = this.mUnitScale
+        viewAttr.mDefaultColor = this.mDefaultColor
+        viewAttr.mProgressColor = this.mProgressColor
+        viewAttr.mScaleMarkSize = this.mScaleMarkSize
+        viewAttr.mCursorBitmap = this.mCursorBitmap
+        viewAttr.mProgressListener = this.mProgressListener
     }
 
 
