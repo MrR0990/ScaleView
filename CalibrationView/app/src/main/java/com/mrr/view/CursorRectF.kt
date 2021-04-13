@@ -1,9 +1,8 @@
 package com.mrr.view
 
-import android.util.Log
 import com.mrr.view.UnitConversion.Companion.px
 
-class CursorRectF {
+class CursorRectF(var mProgressChangeListener: ProgressChangeListener?) {
 
     private val TAG = "CursorRectF"
 
@@ -19,8 +18,17 @@ class CursorRectF {
     var mRoutateDegress = 0f;
 
 
+    private var tx = 0f;
+    private var ty = 0f;
+    private var t_length = 0.0;
+    private var angle = 0.0//弧度
+    private var degress = 0.0//角度
+    private var diff = 0f;
+    private var cursorCircleRadius = 0f
+
+
     /**
-     * 计算圈内游标的各个属性
+     * 计算圆形游标的各个属性
      */
     fun calculateAttributes(
         touchX: Float,
@@ -31,17 +39,18 @@ class CursorRectF {
         p: ScaleParam,
     ) {
 
-        var tx = Math.abs(touchX - centerX)
-        var ty = Math.abs(touchY - centerY)
-        var t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
+        tx = Math.abs(touchX - centerX)
+        ty = Math.abs(touchY - centerY)
+        t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
 
-        var angle = 0.0//弧度
-        var degress = 0.0//角度
+        angle = 0.0//弧度
+        degress = 0.0//角度
 
-        val diff =
+        diff =
             ((circleRadius * p.mScaleNodeWidth) - (circleRadius * p.mScaleWidth)) / 2
 
-        var cursorCircleRadius = 0f
+        cursorCircleRadius = 0f
+
 
         if (p.mCursorLoc == ScaleStyle.INSIDE) {
 
@@ -57,31 +66,30 @@ class CursorRectF {
 
         //处理各个象限以及数轴
         when {
-            (touchX > centerX && touchY < centerY) -> {//第一象限
+            (touchX > centerX && touchY < centerY) -> //第一象限
                 angle = Math.PI * 2 - Math.acos(tx / t_length)
-            }
-            (touchX < centerX && touchY < centerY) -> {//第二象限
+
+            (touchX < centerX && touchY < centerY) -> //第二象限
                 angle = Math.PI + Math.acos(tx / t_length)
 
-            }
-            (touchX < centerX && touchY > centerY) -> {//第三象限
+            (touchX < centerX && touchY > centerY) -> //第三象限
                 angle = Math.PI - Math.acos(tx / t_length)
-            }
-            (touchX > centerX && touchY > centerY) -> {//第四象限
+
+            (touchX > centerX && touchY > centerY) -> //第四象限
                 angle = Math.acos(tx / t_length)
-            }
-            (touchX > centerX && touchY == centerY) -> {//X轴正方向
-                angle = Math.PI * 2
-            }
-            (touchX == centerX && touchY > centerY) -> {//Y轴正方向
+
+            (touchX > centerX && touchY == centerY) -> //X轴正方向
+                angle = 0.0
+
+            (touchX == centerX && touchY > centerY) -> //Y轴正方向
                 angle = Math.PI / 2
-            }
-            (touchX < centerX && touchY == centerY) -> {//X轴反方向
+
+            (touchX < centerX && touchY == centerY) -> //X轴反方向
                 angle = Math.PI
-            }
-            (touchX == centerX && touchY < centerY) -> {//Y轴反方向
+
+            (touchX == centerX && touchY < centerY) -> //Y轴反方向
                 angle = Math.PI * 2 - Math.PI / 2
-            }
+
         }
 
         mRoutateCenterX =
@@ -105,7 +113,13 @@ class CursorRectF {
             mRoutateDegress = Math.toDegrees(angle + Math.PI / 2).toFloat()
         }
 
+
+        mProgressChangeListener?.progressChange(angle)
     }
 
+    public interface ProgressChangeListener {
+
+        fun progressChange(curAngel: Double)
+    }
 
 }

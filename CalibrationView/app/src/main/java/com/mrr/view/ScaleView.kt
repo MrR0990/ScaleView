@@ -18,7 +18,7 @@ import com.mrr.view.UnitConversion.Companion.px
  * 2. 画线性游标
  * - 游标按照节点最长的位置绘制
  */
-class ScaleView : View {
+class ScaleView : View, CursorRectF.ProgressChangeListener {
     val TAG = "ScaleView"
 
     var mContext: Context? = null
@@ -109,12 +109,14 @@ class ScaleView : View {
     var mCursorBitmap: Bitmap? = null
 
     val mCursorMatrix = Matrix()
-    val mCursorRectF = CursorRectF()
+    val mCursorRectF = CursorRectF(this)
 
     /**
      * 线性刻度时候切割canvas使用
      */
     val mClipRect = RectF()
+
+    var mCircleProgressAngel = 0.0
 
 
     constructor(context: Context?) : this(context, null)
@@ -282,7 +284,6 @@ class ScaleView : View {
                 drawLineScale(canvas, mChangeColorPaint, mClipRect)
 
                 mClipRect.set(0f, mTouchY, mWidth, mHeight)
-                drawLineScale(canvas, mOriginColorPaint, mClipRect)
 
             } else if (mParam.mScaleDirect == ScaleStyle.HORIZONTAL) {
 
@@ -292,16 +293,20 @@ class ScaleView : View {
                 drawLineScale(canvas, mChangeColorPaint, mClipRect)
 
                 mClipRect.set(mTouchX, 0f, mWidth, mHeight)
-                drawLineScale(canvas, mOriginColorPaint, mClipRect)
             }
 
+            drawLineScale(canvas, mOriginColorPaint, mClipRect)
+            drawCursor(canvas)
 
         } else if (mParam.mScaleStyle == ScaleStyle.CIRCLE) {
-            drawCircleScale(canvas, mOriginColorPaint, 0f, mHeight)
+            drawCircleScale(canvas, mOriginColorPaint, Math.PI * 2)
+            drawCursor(canvas)
+            drawCircleScale(
+                canvas,
+                mChangeColorPaint,
+                mCircleProgressAngel
+            )
         }
-
-        drawCursor(canvas)
-
     }
 
     private var nodeStartX = 0f
@@ -316,7 +321,11 @@ class ScaleView : View {
     private var startY = 0f
     private var stopY = 0f
 
-    private fun drawCircleScale(canvas: Canvas?, paint: Paint, from: Float, to: Float) {
+    private fun drawCircleScale(canvas: Canvas?, paint: Paint, maxAngel: Double) {
+
+        if (maxAngel == 0.0) {
+            return
+        }
 
         canvas?.drawCircle(mWidth / 2, mHeight / 2, mCircleRadius, mCursorPaint)
 
@@ -328,6 +337,10 @@ class ScaleView : View {
         for (index in 0..mParam.mTotalProgress - 1) {
             // 初始角度 + 当前旋转的角度
             val angle = (index * mPreDegrees).toDouble()
+
+            if (angle > maxAngel) {
+                return
+            }
 
             //从外往内绘制
             if (index % mParam.mUnitScale == 0) {
@@ -353,7 +366,7 @@ class ScaleView : View {
 
             canvas!!.drawLine(
                 startX, startY, stopX, stopY,
-                mOriginColorPaint
+                paint
             )
 
         }
@@ -498,7 +511,7 @@ class ScaleView : View {
 
 
             }
-      
+
         }
 
 
@@ -631,6 +644,10 @@ class ScaleView : View {
             sp.toFloat(),
             resources.displayMetrics
         )
+    }
+
+    override fun progressChange(curAngel: Double) {
+        mCircleProgressAngel = curAngel
     }
 
 
