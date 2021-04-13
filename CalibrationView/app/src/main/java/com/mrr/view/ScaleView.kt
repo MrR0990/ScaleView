@@ -1,7 +1,6 @@
 package com.mrr.view
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
@@ -483,12 +482,12 @@ class ScaleView : View {
                     paddingTop + (mInterval - linelength) / 2 + linelength + mParam.mCursorGap.px
 
             }
-            ScaleStyle.INSIDE -> {
+            ScaleStyle.INSIDE, ScaleStyle.OUTSIDE -> {
                 if (mParam.mScaleStyle != ScaleStyle.CIRCLE) {
                     return
                 }
 
-                mCursorRectF.calculateAttributesInside(
+                mCursorRectF.calculateAttributes(
                     mTouchX,
                     mTouchY,
                     mCenterX,
@@ -499,19 +498,7 @@ class ScaleView : View {
 
 
             }
-            ScaleStyle.OUTSIDE -> {
-                if (mParam.mScaleStyle != ScaleStyle.CIRCLE) {
-                    return
-                }
-
-                var lengthDiff =
-                    ((mCircleRadius * mParam.mScaleNodeWidth) - (mCircleRadius * mParam.mScaleWidth)) / 2
-
-                mCursorRectF.mTransX = mCenterX - mParam.mCursorWidth.px / 2
-
-                mCursorRectF.mTransY =
-                    mCenterY - mCircleRadius + lengthDiff - mParam.mCursorGap.px - mParam.mCursorWidth.px
-            }
+      
         }
 
 

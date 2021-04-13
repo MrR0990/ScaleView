@@ -22,7 +22,7 @@ class CursorRectF {
     /**
      * 计算圈内游标的各个属性
      */
-    fun calculateAttributesInside(
+    fun calculateAttributes(
         touchX: Float,
         touchY: Float,
         centerX: Float,
@@ -41,33 +41,34 @@ class CursorRectF {
         val diff =
             ((circleRadius * p.mScaleNodeWidth) - (circleRadius * p.mScaleWidth)) / 2
 
-        /**
-         * 以游标中心点为弧
-         */
-        var cursorCircleRadius =
-            circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2//游标绘制时候的虚拟半径
+        var cursorCircleRadius = 0f
+
+        if (p.mCursorLoc == ScaleStyle.INSIDE) {
+
+            cursorCircleRadius =
+                circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2//游标绘制时候的半径
+
+        } else if (p.mCursorLoc == ScaleStyle.OUTSIDE) {
+
+            cursorCircleRadius =
+                circleRadius - diff + p.mCursorWidth.px / 2//游标绘制时候的半径
+        }
 
 
         //处理各个象限以及数轴
         when {
             (touchX > centerX && touchY < centerY) -> {//第一象限
-
                 angle = Math.PI * 2 - Math.acos(tx / t_length)
-
             }
             (touchX < centerX && touchY < centerY) -> {//第二象限
-
                 angle = Math.PI + Math.acos(tx / t_length)
 
             }
             (touchX < centerX && touchY > centerY) -> {//第三象限
-
                 angle = Math.PI - Math.acos(tx / t_length)
-
             }
             (touchX > centerX && touchY > centerY) -> {//第四象限
                 angle = Math.acos(tx / t_length)
-
             }
             (touchX > centerX && touchY == centerY) -> {//X轴正方向
                 angle = Math.PI * 2
@@ -94,70 +95,17 @@ class CursorRectF {
         mTransX = mRoutateCenterX - p.mCursorWidth.px / 2
         mTransY = mRoutateCenterY - p.mCursorWidth.px / 2
 
-        mRoutateDegress = Math.toDegrees(angle - Math.PI / 2).toFloat()
-    }
 
-    /**
-     * 计算圈外游标的各个属性
-     */
-    fun calculateAttributesOutside(
-        mTouchX: Float,
-        mTouchY: Float,
-        mCenterX: Float,
-        mCenterY: Float,
-        diff: Float
-    ) {
-        val tx: Float = mTouchX - mCenterX
-        val ty: Float = mTouchY - mCenterY
+        if (p.mCursorLoc == ScaleStyle.INSIDE) {
 
-        var t_length = 0.0
-        var a = 0.0
+            mRoutateDegress = Math.toDegrees(angle - Math.PI / 2).toFloat()
 
-        //处理各个象限以及数轴
-        when {
-            (tx > 0 && ty < 0) -> {//第一象限
-                t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-                a = -Math.acos(tx / t_length)
-            }
-            (tx < 0 && ty < 0) -> {//第二象限
+        } else if (p.mCursorLoc == ScaleStyle.OUTSIDE) {
 
-                t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-                a = -Math.acos(tx / t_length)
-            }
-            (tx < 0 && ty > 0) -> {//第三象限
-                t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-                a = Math.acos(tx / t_length)
-
-            }
-            (tx > 0 && ty > 0) -> {//第四象限
-                t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-                a = Math.acos(tx / t_length)
-            }
-            (tx > 0 && ty == 0f) -> {//X轴正方向
-
-                a = 0.0
-            }
-            (tx == 0f && ty > 0) -> {//Y轴正方向
-                a = 0.0
-            }
-            (tx < 0 && ty == 0f) -> {//X轴反方向
-                a = 0.0
-            }
-            (tx == 0f && ty < 0) -> {//Y轴反方向
-                a = 0.0
-            }
+            mRoutateDegress = Math.toDegrees(angle + Math.PI / 2).toFloat()
         }
-    }
-
-    /**
-     * 根绝余弦求出角度
-     */
-    fun cosDegress(value: Double): Double {
-        if (value == 0.0) {
-            return 0.0
-        }
-        return Math.toDegrees(Math.acos(value))
 
     }
+
 
 }
