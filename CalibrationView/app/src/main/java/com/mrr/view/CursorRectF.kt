@@ -30,138 +30,71 @@ class CursorRectF {
         circleRadius: Float,
         p: ScaleParam,
     ) {
+
+        var tx = Math.abs(touchX - centerX)
+        var ty = Math.abs(touchY - centerY)
+        var t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
+
+        var angle = 0.0//弧度
+        var degress = 0.0//角度
+
         val diff =
             ((circleRadius * p.mScaleNodeWidth) - (circleRadius * p.mScaleWidth)) / 2
 
-
-        var tx = 0f
-        var ty = 0f
-        var t_length = 0.0
-        var angle = 0.0//弧度
-        var degress = 0.0//角度
+        /**
+         * 以游标中心点为弧
+         */
+        var cursorCircleRadius =
+            circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2//游标绘制时候的虚拟半径
 
 
         //处理各个象限以及数轴
         when {
             (touchX > centerX && touchY < centerY) -> {//第一象限
 
-                tx = touchX - centerX
-                ty = touchY - centerY
-
-                t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-                angle = -Math.acos(tx / t_length)
-                degress = Math.toDegrees(angle)
-
-                mRoutateDegress = (270 + degress).toFloat()
-
-                mRoutateCenterX =
-                    (centerX + (circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2)
-                            * Math.cos(angle)).toFloat()
-
-                mRoutateCenterY =
-                    (centerY + (circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2)
-                            * Math.sin(angle)).toFloat()
-
-                mTransX = mRoutateCenterX - p.mCursorWidth.px / 2
-                mTransY = mRoutateCenterY - p.mCursorWidth.px / 2
+                angle = Math.PI * 2 - Math.acos(tx / t_length)
 
             }
             (touchX < centerX && touchY < centerY) -> {//第二象限
 
-                tx = centerX - touchX
-                ty = touchY - centerY
-                t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
+                angle = Math.PI + Math.acos(tx / t_length)
 
-                angle = -Math.acos(tx / t_length)
-                degress = Math.toDegrees(angle)
-
-                Log.d(TAG, "第二象限: tx $tx ty $ty degress $degress")
-
-                mRoutateDegress = (90 - degress).toFloat()
-
-                mRoutateCenterX =
-                    (centerX - (circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2)
-                            * Math.cos(angle)).toFloat()
-
-                mRoutateCenterY =
-                    (centerY + (circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2)
-                            * Math.sin(angle)).toFloat()
-
-                mTransX = mRoutateCenterX - p.mCursorWidth.px / 2
-                mTransY = mRoutateCenterY - p.mCursorWidth.px / 2
             }
             (touchX < centerX && touchY > centerY) -> {//第三象限
 
-                tx = centerX - touchX
-                ty = touchY - centerY
-                t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-
-                angle = Math.acos(tx / t_length)
-                degress = Math.toDegrees(angle)
-
-                Log.d(TAG, "第三象限: tx $tx ty $ty degress $degress")
-
-                mRoutateDegress = (90 - degress).toFloat()
-
-                mRoutateCenterX =
-                    (centerX - (circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2)
-                            * Math.cos(angle)).toFloat()
-
-                mRoutateCenterY =
-                    (centerY + (circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2)
-                            * Math.sin(angle)).toFloat()
-
-                mTransX = mRoutateCenterX - p.mCursorWidth.px / 2
-                mTransY = mRoutateCenterY - p.mCursorWidth.px / 2
+                angle = Math.PI - Math.acos(tx / t_length)
 
             }
             (touchX > centerX && touchY > centerY) -> {//第四象限
-                tx = touchX - centerX
-                ty = touchY - centerY
-                t_length = Math.sqrt((tx * tx + ty * ty).toDouble())
-
                 angle = Math.acos(tx / t_length)
-                degress = Math.toDegrees(angle)
 
-                Log.d(TAG, "第四象限: tx $tx ty $ty degress $degress")
-
-                mRoutateDegress = (-90 + degress).toFloat()
-
-                mRoutateCenterX =
-                    (centerX + (circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2)
-                            * Math.cos(angle)).toFloat()
-
-                mRoutateCenterY =
-                    (centerY + (circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2)
-                            * Math.sin(angle)).toFloat()
-
-                mTransX = mRoutateCenterX - p.mCursorWidth.px / 2
-                mTransY = mRoutateCenterY - p.mCursorWidth.px / 2
             }
             (touchX > centerX && touchY == centerY) -> {//X轴正方向
-                angle = 0.0
-                mRoutateDegress = 270f
+                angle = Math.PI * 2
             }
             (touchX == centerX && touchY > centerY) -> {//Y轴正方向
-                angle = 0.0
-                mRoutateDegress = 180f
+                angle = Math.PI / 2
             }
             (touchX < centerX && touchY == centerY) -> {//X轴反方向
-                angle = 0.0
-                mRoutateDegress = 90f
+                angle = Math.PI
             }
             (touchX == centerX && touchY < centerY) -> {//Y轴反方向
-                angle = 0.0
-                mRoutateDegress = 0f
+                angle = Math.PI * 2 - Math.PI / 2
             }
         }
 
+        mRoutateCenterX =
+            (centerX + cursorCircleRadius
+                    * Math.cos(angle)).toFloat()
 
+        mRoutateCenterY =
+            (centerY + cursorCircleRadius
+                    * Math.sin(angle)).toFloat()
 
-        Log.d(
-            TAG,
-            "mRoutateCenterX $mRoutateCenterX mRoutateCenterY $mRoutateCenterY mTransX $mTransX mTransY $mTransY mRoutateDegress $mRoutateDegress"
-        )
+        mTransX = mRoutateCenterX - p.mCursorWidth.px / 2
+        mTransY = mRoutateCenterY - p.mCursorWidth.px / 2
+
+        mRoutateDegress = Math.toDegrees(angle - Math.PI / 2).toFloat()
     }
 
     /**
