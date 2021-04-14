@@ -1,36 +1,44 @@
 package com.mrr.scaleview.view
 
 import android.graphics.Canvas
+import android.graphics.Matrix
+import android.graphics.Paint
 import android.graphics.RectF
+import com.mrr.scaleview.attr.ScaleViewAttr
+import com.mrr.scaleview.rectf.CursorRectF
+import com.mrr.scaleview.util.UnitConversion.Companion.px
+import java.util.function.Consumer
 
-abstract class BaseView {
+abstract class BaseView : CursorRectF.ProgressChangeListener {
+
+    var mAttr: ScaleViewAttr
 
     /**
-     * 刻度线一半的厚度,方便计算
+     * 刻度线一半的宽度
      */
-    var mHalfCalibration = 0f;
+    var halfCalibration = 0f;
 
     /**
      * 圆形刻度之间的角度
      */
-    var mPreDegrees = 0f
+    var preDegrees = 0f
 
     /**
      * 圆形刻度的半径
      */
-    var mCircleRadius = 0f
+    var circleRadius = 0f
 
     /**
      * 每一个刻度最长可绘制的空间
      */
-    var mInterval = 0f
+    var interval = 0f
 
-    var mDrawSpace = 0f
+    var drawSpace = 0f
 
     /**
      * 刻度之间的间距
      */
-    var mPerInterval = 0f
+    var perInterval = 0f
 
     //第一个节点是一个刻度节点/节点刻度的宽度/高度
     var nodeLength = 0f
@@ -38,16 +46,9 @@ abstract class BaseView {
     //普通刻度占组件减去padding之后的宽度/高度
     var linelength = 0f
 
+    var circleProgressAngel = 0.0
 
-    /**
-     * 线性刻度切割canvas使用
-     */
-    var mClipRect: RectF? = null
-
-    var mCircleProgressAngel = 0.0
-
-    var mClipProgress = 0f
-
+    var clipProgress = 0f
 
     var nodeStartX = 0f
     var nodeStopX = 0f
@@ -61,6 +62,74 @@ abstract class BaseView {
     var startY = 0f
     var stopY = 0f
 
+    // 屏幕最中心的位置
+    var centerX = 0f
+    var centerY = 0f
+
+
+    /**
+     * 线性刻度切割canvas使用
+     */
+    var clipRect: RectF
+
+    var cursorRectF: CursorRectF
+
+    var cursorMatrix: Matrix
+
+    /**
+     *画笔
+     */
+    var originColorPaint: Paint
+    var changeColorPaint: Paint
+    var cursorPaint: Paint
+
+    constructor(mAttr: ScaleViewAttr) {
+        this.mAttr = mAttr
+
+        clipRect = RectF()
+        cursorRectF = CursorRectF(this)
+        cursorMatrix = Matrix()
+
+        halfCalibration = mAttr.mScaleLineWidth.px / 2
+
+        if (null != mAttr.mCursorBitmap) {
+            cursorRectF?.mScaleX = mAttr.mCursorWidth.px / mAttr.mCursorBitmap!!.width
+            cursorRectF?.mScaleY = mAttr.mCursorWidth.px / mAttr.mCursorBitmap!!.height
+        }
+
+        originColorPaint = Paint()
+        changeColorPaint = Paint()
+        cursorPaint = Paint()
+        initPaint()
+    }
+
+
     abstract fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int)
-    abstract fun onDraw(canvas: Canvas?)
+    abstract fun onDraw(canvas: Canvas?, touchX: Float, touchY: Float)
+    abstract fun initTouchXY(
+        touchXCon: Consumer<Float>,
+        touchYCon: Consumer<Float>
+    );//初始化触摸位置,也就是游标初始位置
+
+
+    private fun initPaint() {
+        originColorPaint.isAntiAlias = true
+        originColorPaint.style = Paint.Style.STROKE
+        originColorPaint.color = mAttr.mDefaultColor
+        originColorPaint.strokeWidth = mAttr.mScaleLineWidth
+
+        changeColorPaint.isAntiAlias = true
+        changeColorPaint.style = Paint.Style.STROKE
+        changeColorPaint.color = mAttr.mProgressColor
+        changeColorPaint.strokeWidth = mAttr.mScaleLineWidth
+
+
+        cursorPaint.isAntiAlias = true
+        cursorPaint.style = Paint.Style.STROKE
+        cursorPaint.strokeWidth = 1f
+    }
+
+    public override fun progressChange(curAngel: Double) {
+        TODO("Not yet implemented")
+    }
 }

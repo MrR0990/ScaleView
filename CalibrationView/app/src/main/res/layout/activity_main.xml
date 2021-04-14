@@ -7,7 +7,7 @@
     android:padding="10dp"
     tools:context=".MainActivity">
 
-    <com.mrr.scaleview.ScaleView
+    <com.mrr.scaleview.ScaleView2
         android:layout_width="320dp"
         android:layout_height="70dp"
         android:paddingLeft="20dp"
@@ -25,7 +25,7 @@
         app:scaleDirect="horizontal" />
 
 
-    <com.mrr.scaleview.ScaleView
+    <com.mrr.scaleview.ScaleView2
         android:layout_width="320dp"
         android:layout_height="70dp"
         android:paddingLeft="20dp"
@@ -42,7 +42,7 @@
         app:progressColor="@color/purple_200"
         app:scaleDirect="horizontal" />
 
-    <com.mrr.scaleview.ScaleView
+    <com.mrr.scaleview.ScaleView2
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:padding="5dp"
@@ -63,7 +63,7 @@
         app:totalProgress="120"
         app:unitScale="10" />
 
-    <com.mrr.scaleview.ScaleView
+    <com.mrr.scaleview.ScaleView2
         android:layout_width="250dp"
         android:layout_height="250dp"
         android:padding="30dp"
@@ -84,7 +84,7 @@
         app:totalProgress="120"
         app:unitScale="10" />
 
-    <com.mrr.scaleview.ScaleView
+    <com.mrr.scaleview.ScaleView2
         android:layout_width="70dp"
         android:layout_height="420dp"
         android:paddingTop="20dp"
@@ -103,7 +103,7 @@
         app:scaleNodeWidth="0.7" />
 
 
-    <com.mrr.scaleview.ScaleView
+    <com.mrr.scaleview.ScaleView2
         android:layout_width="70dp"
         android:layout_height="420dp"
         android:paddingLeft="30dp"
