@@ -3,6 +3,7 @@ package com.mrr.scaleview.view
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import android.util.Log
 import com.android.internal.R.id.input
 import com.mrr.scaleview.enum.ScaleAttrEnum
 import com.mrr.scaleview.attr.ScaleViewAttr
@@ -11,6 +12,7 @@ import java.util.function.Consumer
 
 class VerticalScaleView : BaseView {
 
+    private val TAG = "VerticalScaleView"
 
     constructor(attr: ScaleViewAttr) : super(attr) {
 
@@ -70,6 +72,11 @@ class VerticalScaleView : BaseView {
         startY = mAttr.mPaddingTop + halfCalibration
         stopY = startY
 
+        Log.d(
+            TAG,
+            "VERTICAL drawLineScale: startY $startY mPaddingTop ${mAttr.mPaddingTop} mHalfCalibration $halfCalibration"
+        )
+
         for (index in 0..mAttr.mTotalProgress) {
 
             canvas?.drawLine(
@@ -82,6 +89,7 @@ class VerticalScaleView : BaseView {
 
             startY += (perInterval + mAttr.mScaleLineWidth)
             stopY += (perInterval + mAttr.mScaleLineWidth)
+
 
         }
 
@@ -96,15 +104,12 @@ class VerticalScaleView : BaseView {
      */
     private fun drawCursor(canvas: Canvas?, touchX: Float, touchY: Float) {
 
-        if (null == mAttr.mCursorBitmap) {
+        if (null == mAttr.mCursorBitmap || mAttr.mScaleStyle != ScaleAttrEnum.LINE) {
             return
         }
 
         when (mAttr.mCursorLoc) {
             ScaleAttrEnum.LEFT -> {
-                if (mAttr.mScaleStyle != ScaleAttrEnum.LINE) {
-                    return
-                }
                 cursorRectF.mTransX =
                     mAttr.mPaddingLeft + (interval - linelength) / 2 - mAttr.mCursorGap.px - mAttr.mCursorWidth.px
 
@@ -112,9 +117,6 @@ class VerticalScaleView : BaseView {
 
             }
             ScaleAttrEnum.RIGHT -> {
-                if (mAttr.mScaleStyle != ScaleAttrEnum.LINE) {
-                    return
-                }
                 cursorRectF.mTransX =
                     mAttr.mPaddingLeft + (interval - linelength) / 2 + linelength + mAttr.mCursorGap.px
 

@@ -8,7 +8,7 @@
 
         <attr name="scaleNodeWidth" format="float" />
 
-        <attr name="scaleThick" format="dimension" />
+        <attr name="scaleLineWidth" format="float" />
 
         <attr name="scaleDirect">
             <enum name="horizontal" value="0" />

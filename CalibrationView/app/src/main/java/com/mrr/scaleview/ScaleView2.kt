@@ -3,19 +3,15 @@ package com.mrr.scaleview
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import com.mrr.scaleview.rectf.CursorRectF
 import com.mrr.scaleview.enum.ScaleAttrEnum
-import com.mrr.scaleview.util.UnitConversion.Companion.px
 import com.mrr.scaleview.attr.ScaleViewAttr
 import com.mrr.scaleview.view.BaseView
 import com.mrr.scaleview.view.CircleScaleView
 import com.mrr.scaleview.view.HorizontalScaleView
 import com.mrr.scaleview.view.VerticalScaleView
 import java.util.function.Consumer
-import java.util.function.Function
 
 class ScaleView2 : View {
     val TAG = "ScaleView"
@@ -58,7 +54,7 @@ class ScaleView2 : View {
             typeArray!!.getFloat(R.styleable.ScaleView_scaleNodeWidth, 0.7f)
 
         mParam.mScaleLineWidth =
-            typeArray!!.getDimension(R.styleable.ScaleView_scaleThick, 5f)
+            typeArray!!.getDimension(R.styleable.ScaleView_scaleLineWidth, 5f)
 
         var cursorDrawableID = typeArray!!.getResourceId(R.styleable.ScaleView_cursorDrawable, 0)
 
@@ -115,14 +111,17 @@ class ScaleView2 : View {
 
         mWidth = MeasureSpec.getSize(widthMeasureSpec).toFloat()
         mHeight = MeasureSpec.getSize(heightMeasureSpec).toFloat()
-        setMeasuredDimension(mWidth.toInt(), mHeight.toInt())
 
         mParam.mWidth = mWidth
         mParam.mHeight = mHeight
-        mParam.mPaddingLeft = paddingLeft
-        mParam.mPaddingRight = paddingRight
-        mParam.mPaddingTop = paddingTop
-        mParam.mPaddingBottom = paddingBottom
+
+        setMeasuredDimension(mWidth.toInt(), mHeight.toInt())
+
+        mParam.mPaddingLeft = mPaddingLeft
+        mParam.mPaddingRight = mPaddingRight
+        mParam.mPaddingTop = mPaddingTop
+        mParam.mPaddingBottom = mPaddingBottom
+
 
         when {
             (mParam.mScaleStyle == ScaleAttrEnum.LINE && mParam.mScaleDirect == ScaleAttrEnum.VERTICAL) -> {

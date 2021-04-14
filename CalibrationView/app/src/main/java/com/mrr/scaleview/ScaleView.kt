@@ -141,7 +141,7 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
             typeArray!!.getFloat(R.styleable.ScaleView_scaleNodeWidth, 0.7f)
 
         mParam.mScaleLineWidth =
-            typeArray!!.getDimension(R.styleable.ScaleView_scaleThick, 5f)
+            typeArray!!.getFloat(R.styleable.ScaleView_scaleLineWidth, 5f)
 
         var cursorDrawableID = typeArray!!.getResourceId(R.styleable.ScaleView_cursorDrawable, 0)
 
@@ -317,18 +317,24 @@ class ScaleView : View, CursorRectF.ProgressChangeListener {
             startY = mPaddingTop + mHalfCalibration
             stopY = startY
 
+            Log.d(
+                TAG,
+                "VERTICAL drawLineScale: startY $startY mPaddingTop $mPaddingTop mHalfCalibration $mHalfCalibration"
+            )
+
             for (index in 0..mParam.mTotalProgress) {
 
                 canvas?.drawLine(
-                    if (index % mParam.mUnitScale == 0) nodeStartX.toFloat() else startX,
+                    if (index % mParam.mUnitScale == 0) nodeStartX else startX,
                     startY.toFloat(),
-                    if (index % mParam.mUnitScale == 0) nodeStopX.toFloat() else stopX,
+                    if (index % mParam.mUnitScale == 0) nodeStopX else stopX,
                     stopY.toFloat(),
                     paint
                 )
 
                 startY += (mPerInterval + mParam.mScaleLineWidth)
                 stopY += (mPerInterval + mParam.mScaleLineWidth)
+
 
             }
 

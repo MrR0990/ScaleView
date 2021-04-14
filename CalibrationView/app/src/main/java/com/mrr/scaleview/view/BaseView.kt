@@ -90,7 +90,7 @@ abstract class BaseView : CursorRectF.ProgressChangeListener {
         cursorRectF = CursorRectF(this)
         cursorMatrix = Matrix()
 
-        halfCalibration = mAttr.mScaleLineWidth.px / 2
+        halfCalibration = mAttr.mScaleLineWidth / 2
 
         if (null != mAttr.mCursorBitmap) {
             cursorRectF?.mScaleX = mAttr.mCursorWidth.px / mAttr.mCursorBitmap!!.width

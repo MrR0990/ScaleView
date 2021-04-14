@@ -48,7 +48,7 @@ class CircleScaleView : BaseView {
             return
         }
 
-        canvas?.drawCircle(mAttr.mWidth / 2, mAttr.mHeight / 2, circleRadius, cursorPaint)
+//        canvas?.drawCircle(mAttr.mWidth / 2, mAttr.mHeight / 2, circleRadius, cursorPaint)
 
         //节点刻度和普通刻度的长度差
         var lengthDiff =
@@ -111,7 +111,6 @@ class CircleScaleView : BaseView {
             circleRadius,
             mAttr
         )
-
 
         cursorMatrix.reset()
         // 创建操作图片用的 Matrix 对象
