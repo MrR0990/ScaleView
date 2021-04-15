@@ -3,10 +3,12 @@ package com.mrr.scaleview.view
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.Paint.FontMetricsInt
 import android.graphics.RectF
 import com.mrr.scaleview.attr.ScaleViewAttr
 import com.mrr.scaleview.rectf.CursorRectF
 import com.mrr.scaleview.util.UnitConversion.Companion.px
+import com.mrr.scaleview.util.UnitConversion.Companion.sp2px
 import java.util.function.Consumer
 
 abstract class BaseView : CursorRectF.ProgressChangeListener {
@@ -84,6 +86,8 @@ abstract class BaseView : CursorRectF.ProgressChangeListener {
     var cursorPaint: Paint
     var textPaint: Paint
 
+    var fontMetrics: Paint.FontMetrics? = null
+
     constructor(mAttr: ScaleViewAttr) {
         this.mAttr = mAttr
 
@@ -103,6 +107,7 @@ abstract class BaseView : CursorRectF.ProgressChangeListener {
         cursorPaint = Paint()
         textPaint = Paint()
         initPaint()
+        fontMetrics = textPaint.fontMetrics
     }
 
 
@@ -131,8 +136,9 @@ abstract class BaseView : CursorRectF.ProgressChangeListener {
         cursorPaint.strokeWidth = 1f
 
         textPaint.isAntiAlias = true
-        textPaint.style = Paint.Style.STROKE
-        textPaint.color = mAttr.mDefaultColor
+        textPaint.style = Paint.Style.FILL
+        textPaint.color = mAttr.mScaleTextColor
+        textPaint.textSize = mAttr.mScaleTextSize.sp2px
     }
 
     public override fun progressChange(curAngel: Double) {

@@ -11,6 +11,7 @@
         android:layout_width="320dp"
         android:layout_height="70dp"
         android:paddingLeft="20dp"
+        android:paddingTop="10dp"
         android:paddingRight="20dp"
         android:paddingBottom="30dp"
         app:cursorDrawable="@drawable/night_brightness"
@@ -23,7 +24,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:progressColor="@color/purple_200"
         app:scaleDirect="horizontal"
-        app:scaleStyle="line" />
+        app:scaleStyle="line"
+        app:scaleTextColor="@color/purple_200"
+        app:scaleTextGap="2dp"
+        app:scaleTextSeat="top"
+        app:scaleTextSize="5sp" />
 
 
     <com.mrr.scaleview.ScaleView
@@ -32,6 +37,7 @@
         android:paddingLeft="20dp"
         android:paddingTop="30dp"
         android:paddingRight="20dp"
+        android:paddingBottom="10dp"
         app:cursorDrawable="@drawable/night_brightness"
         app:cursorGap="2dp"
         app:cursorSeat="top"
@@ -42,7 +48,11 @@
         app:layout_constraintRight_toRightOf="parent"
         app:progressColor="@color/purple_200"
         app:scaleDirect="horizontal"
-        app:scaleStyle="line" />
+        app:scaleStyle="line"
+        app:scaleTextColor="@color/purple_200"
+        app:scaleTextGap="2dp"
+        app:scaleTextSeat="bottom"
+        app:scaleTextSize="5sp" />
 
     <com.mrr.scaleview.ScaleView
         android:layout_width="200dp"
@@ -89,6 +99,7 @@
     <com.mrr.scaleview.ScaleView
         android:layout_width="70dp"
         android:layout_height="420dp"
+        android:paddingLeft="10dp"
         android:paddingTop="20dp"
         android:paddingRight="30dp"
         android:paddingBottom="20dp"
@@ -103,7 +114,11 @@
         app:progressColor="@color/purple_200"
         app:scaleDirect="vertical"
         app:scaleNodeWidth="0.7"
-        app:scaleStyle="line" />
+        app:scaleStyle="line"
+        app:scaleTextColor="@color/purple_200"
+        app:scaleTextGap="2dp"
+        app:scaleTextSeat="left"
+        app:scaleTextSize="5sp" />
 
 
     <com.mrr.scaleview.ScaleView
@@ -111,6 +126,7 @@
         android:layout_height="420dp"
         android:paddingLeft="30dp"
         android:paddingTop="20dp"
+        android:paddingRight="10dp"
         android:paddingBottom="20dp"
         app:cursorDrawable="@drawable/night_brightness"
         app:cursorGap="0dp"
@@ -123,7 +139,11 @@
         app:progressColor="@color/purple_200"
         app:scaleDirect="vertical"
         app:scaleNodeWidth="0.7"
-        app:scaleStyle="line" />
+        app:scaleStyle="line"
+        app:scaleTextColor="@color/purple_200"
+        app:scaleTextGap="2dp"
+        app:scaleTextSeat="right"
+        app:scaleTextSize="5sp" />
 
 
     <androidx.constraintlayout.widget.Guideline

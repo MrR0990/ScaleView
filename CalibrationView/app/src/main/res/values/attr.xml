@@ -49,6 +49,7 @@
 
         <attr name="scaleTextColor" format="color" />
         <attr name="scaleTextSize" format="dimension" />
+        <attr name="scaleTextGap" format="dimension" />
 
         <attr name="cursorWidth" format="dimension" />
 

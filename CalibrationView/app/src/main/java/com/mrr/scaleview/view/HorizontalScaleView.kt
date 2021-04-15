@@ -10,6 +10,13 @@ import java.util.function.Consumer
 
 class HorizontalScaleView : BaseView {
 
+    private var letter: String? = null
+    private var letterCenterY = 0f
+    private var dy = 0f
+    private var baseLine = 0f
+    private var textWidth = 0f
+    private var x = 0f
+
     constructor(attr: ScaleViewAttr) : super(attr) {
 
     }
@@ -80,10 +87,42 @@ class HorizontalScaleView : BaseView {
                 paint
             )
 
+            if ((index % mAttr.mUnitScale == 0)) {
+
+                if (mAttr.mScaleTextSeat == ScaleAttrEnum.TOP) {
+
+                    letter = (index / mAttr.mUnitScale).toString()
+                    letterCenterY =
+                        nodeStartY - (-fontMetrics!!.ascent + fontMetrics!!.descent) / 2 - mAttr.mScaleTextGap.px
+                    dy =
+                        (fontMetrics!!.bottom - fontMetrics!!.top) / 2 - fontMetrics!!.bottom
+                    baseLine = letterCenterY + dy
+                    textWidth = textPaint.measureText(letter)
+                    x = nodeStartX - textWidth / 2
+
+                } else if (mAttr.mScaleTextSeat == ScaleAttrEnum.BOTTOM) {
+
+                    letter = (index / mAttr.mUnitScale).toString()
+                    letterCenterY =
+                        nodeStopY + (-fontMetrics!!.ascent + fontMetrics!!.descent) / 2 + mAttr.mScaleTextGap.px
+                    dy =
+                        (fontMetrics!!.bottom - fontMetrics!!.top) / 2 - fontMetrics!!.bottom
+                    baseLine = letterCenterY + dy
+                    textWidth = textPaint.measureText(letter)
+                    x = nodeStopX - textWidth / 2
+
+                } else {
+                    return
+                }
+
+                canvas.drawText(letter, x.toFloat(), baseLine.toFloat(), textPaint)
+            }
+
             nodeStartX += (perInterval + mAttr.mScaleLineWidth)
             nodeStopX += (perInterval + mAttr.mScaleLineWidth)
-
         }
+
+
 
         canvas.restore()
 

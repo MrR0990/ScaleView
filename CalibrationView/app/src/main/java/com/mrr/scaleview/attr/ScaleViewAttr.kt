@@ -1,8 +1,11 @@
 package com.mrr.scaleview.attr
 
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import com.mrr.scaleview.R
 import com.mrr.scaleview.enum.ScaleAttrEnum
 
 class ScaleViewAttr {
@@ -90,12 +93,80 @@ class ScaleViewAttr {
      */
     var mProgressColor = Color.parseColor("#999999");
 
+
     var mProgressListener: ProgressListener? = null
 
     var mScaleMarkSize = 0f
 
     var mCursorBitmap: Bitmap? = null
 
+    var mScaleTextColor = Color.parseColor("#999999");
+
+    var mScaleTextSize = 0f
+
+    var mScaleTextGap = 0f
+
+
+    fun initAttr(typeArray: TypedArray?, context: Context) {
+
+        mScaleWidth =
+            typeArray!!.getFloat(R.styleable.ScaleView_scaleWidth, 0.5f)
+
+
+        mScaleNodeWidth =
+            typeArray!!.getFloat(R.styleable.ScaleView_scaleNodeWidth, 0.7f)
+
+        mScaleLineWidth =
+            typeArray!!.getDimension(R.styleable.ScaleView_scaleLineWidth, 5f)
+
+        var cursorDrawableID = typeArray!!.getResourceId(R.styleable.ScaleView_cursorDrawable, 0)
+
+        if (cursorDrawableID > 0) {
+            mCursorBitmap = BitmapFactory.decodeResource(context.resources, cursorDrawableID)
+        }
+
+        var style = typeArray!!.getInt(R.styleable.ScaleView_scaleStyle, -1)
+        mScaleStyle =
+            ScaleAttrEnum.get(style)
+
+        var direct =
+            typeArray!!.getInt(R.styleable.ScaleView_scaleDirect, -1)
+        mScaleDirect = ScaleAttrEnum.get(direct)
+
+
+        var cursorSeat =
+            typeArray!!.getInt(R.styleable.ScaleView_cursorSeat, -1)
+        mCursorSeat = ScaleAttrEnum.get(cursorSeat)
+
+        var scaleTextSeat =
+            typeArray!!.getInt(R.styleable.ScaleView_scaleTextSeat, -1)
+        mScaleTextSeat = ScaleAttrEnum.get(scaleTextSeat)
+
+        mCursorWidth =
+            typeArray!!.getDimension(R.styleable.ScaleView_cursorWidth, 20f)
+
+        mCursorGap =
+            typeArray!!.getDimension(R.styleable.ScaleView_cursorGap, 5f)
+
+        mTotalProgress =
+            typeArray!!.getInt(R.styleable.ScaleView_totalProgress, 60)
+
+        mUnitScale =
+            typeArray!!.getInt(R.styleable.ScaleView_unitScale, 10)
+
+        mDefaultColor =
+            typeArray!!.getColor(R.styleable.ScaleView_defaultColor, Color.DKGRAY)
+
+        mProgressColor =
+            typeArray!!.getColor(R.styleable.ScaleView_progressColor, Color.DKGRAY)
+
+        mScaleTextColor =
+            typeArray!!.getColor(R.styleable.ScaleView_scaleTextColor, Color.DKGRAY)
+
+        mScaleTextSize = typeArray!!.getDimension(R.styleable.ScaleView_scaleTextSize, 5f)
+
+        mScaleTextGap = typeArray!!.getDimension(R.styleable.ScaleView_scaleTextGap, 0f)
+    }
 
     fun apply(viewAttr: ScaleViewAttr) {
         viewAttr.context = this.context

@@ -90,7 +90,7 @@ class Builder {
 
     fun create(): ScaleView {
         val view = ScaleView(p.context);
-        p.apply(view.mParam)
+        p.apply(view.mAttr)
         return view;
     }
 

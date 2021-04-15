@@ -4,14 +4,22 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.Log
-import com.mrr.scaleview.enum.ScaleAttrEnum
 import com.mrr.scaleview.attr.ScaleViewAttr
+import com.mrr.scaleview.enum.ScaleAttrEnum
 import com.mrr.scaleview.util.UnitConversion.Companion.px
 import java.util.function.Consumer
 
 class VerticalScaleView : BaseView {
 
     private val TAG = "VerticalScaleView"
+
+
+    private var letter: String? = null
+    private var letterCenterY = 0f
+    private var dy = 0f
+    private var baseLine = 0f
+    private var textWidth = 0f
+    private var x = 0f
 
     constructor(attr: ScaleViewAttr) : super(attr) {
 
@@ -88,22 +96,35 @@ class VerticalScaleView : BaseView {
 
 
             if ((index % mAttr.mUnitScale == 0)) {
-                canvas?.drawText(
-                    (index / mAttr.mUnitScale).toString(),
-                    startX.toFloat(),
-                    startY.toFloat(),
-                    textPaint
-                )
+
+                if (mAttr.mScaleTextSeat == ScaleAttrEnum.LEFT) {
+
+                    letter = (index / mAttr.mUnitScale).toString()
+                    letterCenterY = startY
+                    dy =
+                        (fontMetrics!!.bottom - fontMetrics!!.top) / 2 - fontMetrics!!.bottom
+                    baseLine = letterCenterY + dy
+                    textWidth = textPaint.measureText(letter)
+                    x = nodeStartX - textWidth - mAttr.mScaleTextGap.px
+
+                } else if (mAttr.mScaleTextSeat == ScaleAttrEnum.RIGHT) {
+
+                    letter = (index / mAttr.mUnitScale).toString()
+                    letterCenterY = startY
+                    dy =
+                        (fontMetrics!!.bottom - fontMetrics!!.top) / 2 - fontMetrics!!.bottom
+                    baseLine = letterCenterY + dy
+                    textWidth = textPaint.measureText(letter)
+                    x = nodeStopX + mAttr.mScaleTextGap.px
+
+                }
+
+                canvas.drawText(letter, x.toFloat(), baseLine.toFloat(), textPaint)
             }
-
-
 
             startY += (perInterval + mAttr.mScaleLineWidth)
             stopY += (perInterval + mAttr.mScaleLineWidth)
-
-
         }
-
         canvas.restore()
 
     }
@@ -123,21 +144,16 @@ class VerticalScaleView : BaseView {
             ScaleAttrEnum.LEFT -> {
                 cursorRectF.mTransX =
                     mAttr.mPaddingLeft + (interval - linelength) / 2 - mAttr.mCursorGap.px - mAttr.mCursorWidth.px
-
                 cursorRectF.mTransY = touchY - mAttr.mCursorWidth.px / 2
 
             }
             ScaleAttrEnum.RIGHT -> {
                 cursorRectF.mTransX =
                     mAttr.mPaddingLeft + (interval - linelength) / 2 + linelength + mAttr.mCursorGap.px
-
                 cursorRectF.mTransY = touchY - mAttr.mCursorWidth.px / 2
 
             }
-
-
         }
-
 
         cursorMatrix.reset()
         // 创建操作图片用的 Matrix 对象

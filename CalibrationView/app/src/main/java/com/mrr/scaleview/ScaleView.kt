@@ -18,7 +18,7 @@ class ScaleView : View {
 
     var mContext: Context? = null
 
-    var mParam = ScaleViewAttr();
+    var mAttr = ScaleViewAttr();
 
     lateinit var mView: BaseView
 
@@ -45,59 +45,8 @@ class ScaleView : View {
     ) {
         this.mContext = context
         var typeArray = context?.obtainStyledAttributes(attrs, R.styleable.ScaleView)
-
-        mParam.mScaleWidth =
-            typeArray!!.getFloat(R.styleable.ScaleView_scaleWidth, 0.5f)
-
-
-        mParam.mScaleNodeWidth =
-            typeArray!!.getFloat(R.styleable.ScaleView_scaleNodeWidth, 0.7f)
-
-        mParam.mScaleLineWidth =
-            typeArray!!.getDimension(R.styleable.ScaleView_scaleLineWidth, 5f)
-
-        var cursorDrawableID = typeArray!!.getResourceId(R.styleable.ScaleView_cursorDrawable, 0)
-
-        if (cursorDrawableID > 0) {
-            mParam.mCursorBitmap = BitmapFactory.decodeResource(resources, cursorDrawableID)
-        }
-
-        var style = typeArray!!.getInt(R.styleable.ScaleView_scaleStyle, -1)
-        mParam.mScaleStyle =
-            ScaleAttrEnum.get(style)
-
-        var direct =
-            typeArray!!.getInt(R.styleable.ScaleView_scaleDirect, -1)
-        mParam.mScaleDirect = ScaleAttrEnum.get(direct)
-
-
-        var cursorSeat =
-            typeArray!!.getInt(R.styleable.ScaleView_cursorSeat, -1)
-        mParam.mCursorSeat = ScaleAttrEnum.get(cursorSeat)
-
-        var scaleTextSeat =
-            typeArray!!.getInt(R.styleable.ScaleView_scaleTextSeat, -1)
-        mParam.mScaleTextSeat = ScaleAttrEnum.get(scaleTextSeat)
-
-        mParam.mCursorWidth =
-            typeArray!!.getDimension(R.styleable.ScaleView_cursorWidth, 20f)
-
-        mParam.mCursorGap =
-            typeArray!!.getDimension(R.styleable.ScaleView_cursorGap, 5f)
-
-        mParam.mTotalProgress =
-            typeArray!!.getInt(R.styleable.ScaleView_totalProgress, 60)
-
-        mParam.mUnitScale =
-            typeArray!!.getInt(R.styleable.ScaleView_unitScale, 10)
-
-        mParam.mDefaultColor =
-            typeArray!!.getColor(R.styleable.ScaleView_defaultColor, Color.DKGRAY)
-
-        mParam.mProgressColor =
-            typeArray!!.getColor(R.styleable.ScaleView_progressColor, Color.DKGRAY)
-
-        typeArray.recycle()
+        mAttr.initAttr(typeArray, mContext)
+        typeArray?.recycle()
     }
 
 
@@ -111,26 +60,26 @@ class ScaleView : View {
         mWidth = MeasureSpec.getSize(widthMeasureSpec).toFloat()
         mHeight = MeasureSpec.getSize(heightMeasureSpec).toFloat()
 
-        mParam.mWidth = mWidth
-        mParam.mHeight = mHeight
+        mAttr.mWidth = mWidth
+        mAttr.mHeight = mHeight
 
         setMeasuredDimension(mWidth.toInt(), mHeight.toInt())
 
-        mParam.mPaddingLeft = mPaddingLeft
-        mParam.mPaddingRight = mPaddingRight
-        mParam.mPaddingTop = mPaddingTop
-        mParam.mPaddingBottom = mPaddingBottom
+        mAttr.mPaddingLeft = mPaddingLeft
+        mAttr.mPaddingRight = mPaddingRight
+        mAttr.mPaddingTop = mPaddingTop
+        mAttr.mPaddingBottom = mPaddingBottom
 
 
         when {
-            (mParam.mScaleStyle == ScaleAttrEnum.LINE && mParam.mScaleDirect == ScaleAttrEnum.VERTICAL) -> {
-                mView = VerticalScaleView(mParam)
+            (mAttr.mScaleStyle == ScaleAttrEnum.LINE && mAttr.mScaleDirect == ScaleAttrEnum.VERTICAL) -> {
+                mView = VerticalScaleView(mAttr)
             }
-            (mParam.mScaleStyle == ScaleAttrEnum.LINE && mParam.mScaleDirect == ScaleAttrEnum.HORIZONTAL) -> {
-                mView = HorizontalScaleView(mParam)
+            (mAttr.mScaleStyle == ScaleAttrEnum.LINE && mAttr.mScaleDirect == ScaleAttrEnum.HORIZONTAL) -> {
+                mView = HorizontalScaleView(mAttr)
             }
-            (mParam.mScaleStyle == ScaleAttrEnum.CIRCLE) -> {
-                mView = CircleScaleView(mParam)
+            (mAttr.mScaleStyle == ScaleAttrEnum.CIRCLE) -> {
+                mView = CircleScaleView(mAttr)
             }
         }
 
