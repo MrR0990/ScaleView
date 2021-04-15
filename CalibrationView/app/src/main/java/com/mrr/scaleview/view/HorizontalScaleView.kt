@@ -5,20 +5,18 @@ import android.graphics.Paint
 import android.graphics.RectF
 import com.mrr.scaleview.attr.ScaleViewAttr
 import com.mrr.scaleview.enum.ScaleAttrEnum
+import com.mrr.scaleview.rectf.ScaleTextRectF
 import com.mrr.scaleview.util.UnitConversion.Companion.px
 import java.util.function.Consumer
 
-class HorizontalScaleView : BaseView {
+class HorizontalScaleView : BaseScaleView {
 
-    private var letter: String? = null
-    private var letterCenterY = 0f
-    private var dy = 0f
-    private var baseLine = 0f
-    private var textWidth = 0f
-    private var x = 0f
+
+    var letter: String = ""
+    var scaleTextRectF: ScaleTextRectF? = null
 
     constructor(attr: ScaleViewAttr) : super(attr) {
-
+        scaleTextRectF = ScaleTextRectF()
     }
 
 
@@ -89,33 +87,18 @@ class HorizontalScaleView : BaseView {
 
             if ((index % mAttr.mUnitScale == 0)) {
 
-                if (mAttr.mScaleTextSeat == ScaleAttrEnum.TOP) {
+                letter = (index / mAttr.mUnitScale).toString()
+                scaleTextRectF?.initLineTextSeat(letter, this)
 
-                    letter = (index / mAttr.mUnitScale).toString()
-                    letterCenterY =
-                        nodeStartY - (-fontMetrics!!.ascent + fontMetrics!!.descent) / 2 - mAttr.mScaleTextGap.px
-                    dy =
-                        (fontMetrics!!.bottom - fontMetrics!!.top) / 2 - fontMetrics!!.bottom
-                    baseLine = letterCenterY + dy
-                    textWidth = textPaint.measureText(letter)
-                    x = nodeStartX - textWidth / 2
+                if (scaleTextRectF?.init == true) {
 
-                } else if (mAttr.mScaleTextSeat == ScaleAttrEnum.BOTTOM) {
-
-                    letter = (index / mAttr.mUnitScale).toString()
-                    letterCenterY =
-                        nodeStopY + (-fontMetrics!!.ascent + fontMetrics!!.descent) / 2 + mAttr.mScaleTextGap.px
-                    dy =
-                        (fontMetrics!!.bottom - fontMetrics!!.top) / 2 - fontMetrics!!.bottom
-                    baseLine = letterCenterY + dy
-                    textWidth = textPaint.measureText(letter)
-                    x = nodeStopX - textWidth / 2
-
-                } else {
-                    return
+                    canvas.drawText(
+                        letter,
+                        scaleTextRectF!!.x,
+                        scaleTextRectF!!.baseLine,
+                        textPaint
+                    )
                 }
-
-                canvas.drawText(letter, x.toFloat(), baseLine.toFloat(), textPaint)
             }
 
             nodeStartX += (perInterval + mAttr.mScaleLineWidth)

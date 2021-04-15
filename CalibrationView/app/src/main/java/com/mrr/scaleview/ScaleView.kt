@@ -7,7 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import com.mrr.scaleview.enum.ScaleAttrEnum
 import com.mrr.scaleview.attr.ScaleViewAttr
-import com.mrr.scaleview.view.BaseView
+import com.mrr.scaleview.view.BaseScaleView
 import com.mrr.scaleview.view.CircleScaleView
 import com.mrr.scaleview.view.HorizontalScaleView
 import com.mrr.scaleview.view.VerticalScaleView
@@ -20,7 +20,7 @@ class ScaleView : View {
 
     var mAttr = ScaleViewAttr();
 
-    lateinit var mView: BaseView
+    lateinit var mScaleView: BaseScaleView
 
     /**
      * 是否已经初始化画笔
@@ -73,18 +73,18 @@ class ScaleView : View {
 
         when {
             (mAttr.mScaleStyle == ScaleAttrEnum.LINE && mAttr.mScaleDirect == ScaleAttrEnum.VERTICAL) -> {
-                mView = VerticalScaleView(mAttr)
+                mScaleView = VerticalScaleView(mAttr)
             }
             (mAttr.mScaleStyle == ScaleAttrEnum.LINE && mAttr.mScaleDirect == ScaleAttrEnum.HORIZONTAL) -> {
-                mView = HorizontalScaleView(mAttr)
+                mScaleView = HorizontalScaleView(mAttr)
             }
             (mAttr.mScaleStyle == ScaleAttrEnum.CIRCLE) -> {
-                mView = CircleScaleView(mAttr)
+                mScaleView = CircleScaleView(mAttr)
             }
         }
 
-        mView.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        mView.initTouchXY(
+        mScaleView.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        mScaleView.initTouchXY(
             Consumer { t -> mTouchX = t },
             Consumer { t -> mTouchY = t }
         )
@@ -95,7 +95,7 @@ class ScaleView : View {
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        mView.onDraw(canvas, mTouchX, mTouchY)
+        mScaleView.onDraw(canvas, mTouchX, mTouchY)
     }
 
 

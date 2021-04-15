@@ -6,22 +6,20 @@ import android.graphics.RectF
 import android.util.Log
 import com.mrr.scaleview.attr.ScaleViewAttr
 import com.mrr.scaleview.enum.ScaleAttrEnum
+import com.mrr.scaleview.rectf.ScaleTextRectF
 import com.mrr.scaleview.util.UnitConversion.Companion.px
 import java.util.function.Consumer
 
-class VerticalScaleView : BaseView {
+class VerticalScaleView : BaseScaleView {
 
     private val TAG = "VerticalScaleView"
 
 
-    private var letter: String? = null
-    private var letterCenterY = 0f
-    private var dy = 0f
-    private var baseLine = 0f
-    private var textWidth = 0f
-    private var x = 0f
+    var letter: String = ""
+    var scaleTextRectF: ScaleTextRectF? = null
 
     constructor(attr: ScaleViewAttr) : super(attr) {
+        scaleTextRectF = ScaleTextRectF()
 
     }
 
@@ -97,29 +95,20 @@ class VerticalScaleView : BaseView {
 
             if ((index % mAttr.mUnitScale == 0)) {
 
-                if (mAttr.mScaleTextSeat == ScaleAttrEnum.LEFT) {
+                letter = (index / mAttr.mUnitScale).toString()
+                scaleTextRectF?.initLineTextSeat(letter, this)
 
-                    letter = (index / mAttr.mUnitScale).toString()
-                    letterCenterY = startY
-                    dy =
-                        (fontMetrics!!.bottom - fontMetrics!!.top) / 2 - fontMetrics!!.bottom
-                    baseLine = letterCenterY + dy
-                    textWidth = textPaint.measureText(letter)
-                    x = nodeStartX - textWidth - mAttr.mScaleTextGap.px
+                if (scaleTextRectF?.init == true) {
 
-                } else if (mAttr.mScaleTextSeat == ScaleAttrEnum.RIGHT) {
-
-                    letter = (index / mAttr.mUnitScale).toString()
-                    letterCenterY = startY
-                    dy =
-                        (fontMetrics!!.bottom - fontMetrics!!.top) / 2 - fontMetrics!!.bottom
-                    baseLine = letterCenterY + dy
-                    textWidth = textPaint.measureText(letter)
-                    x = nodeStopX + mAttr.mScaleTextGap.px
-
+                    canvas.drawText(
+                        letter,
+                        scaleTextRectF!!.x,
+                        scaleTextRectF!!.baseLine,
+                        textPaint
+                    )
                 }
 
-                canvas.drawText(letter, x.toFloat(), baseLine.toFloat(), textPaint)
+
             }
 
             startY += (perInterval + mAttr.mScaleLineWidth)

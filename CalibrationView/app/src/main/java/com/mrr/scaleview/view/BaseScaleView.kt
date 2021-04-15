@@ -11,7 +11,7 @@ import com.mrr.scaleview.util.UnitConversion.Companion.px
 import com.mrr.scaleview.util.UnitConversion.Companion.sp2px
 import java.util.function.Consumer
 
-abstract class BaseView : CursorRectF.ProgressChangeListener {
+abstract class BaseScaleView : CursorRectF.ProgressChangeListener {
 
     var mAttr: ScaleViewAttr
 
