@@ -43,7 +43,7 @@ class Builder {
 
     fun setCursorLoc(var1: ScaleAttrEnum): Builder {
         Intrinsics.checkNotNullParameter(var1, "<set-?>")
-        p.mCursorLoc = var1
+        p.mCursorSeat = var1
         return this
     }
 

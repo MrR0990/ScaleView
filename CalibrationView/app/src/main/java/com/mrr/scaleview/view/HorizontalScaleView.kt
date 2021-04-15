@@ -7,7 +7,6 @@ import com.mrr.scaleview.attr.ScaleViewAttr
 import com.mrr.scaleview.enum.ScaleAttrEnum
 import com.mrr.scaleview.util.UnitConversion.Companion.px
 import java.util.function.Consumer
-import java.util.function.Function
 
 class HorizontalScaleView : BaseView {
 
@@ -101,7 +100,7 @@ class HorizontalScaleView : BaseView {
             return
         }
 
-        when (mAttr.mCursorLoc) {
+        when (mAttr.mCursorSeat) {
             ScaleAttrEnum.TOP -> {
                 if (mAttr.mScaleStyle != ScaleAttrEnum.LINE) {
                     return

@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.Log
-import com.android.internal.R.id.input
 import com.mrr.scaleview.enum.ScaleAttrEnum
 import com.mrr.scaleview.attr.ScaleViewAttr
 import com.mrr.scaleview.util.UnitConversion.Companion.px
@@ -87,6 +86,18 @@ class VerticalScaleView : BaseView {
                 paint
             )
 
+
+            if ((index % mAttr.mUnitScale == 0)) {
+                canvas?.drawText(
+                    (index / mAttr.mUnitScale).toString(),
+                    startX.toFloat(),
+                    startY.toFloat(),
+                    textPaint
+                )
+            }
+
+
+
             startY += (perInterval + mAttr.mScaleLineWidth)
             stopY += (perInterval + mAttr.mScaleLineWidth)
 
@@ -108,7 +119,7 @@ class VerticalScaleView : BaseView {
             return
         }
 
-        when (mAttr.mCursorLoc) {
+        when (mAttr.mCursorSeat) {
             ScaleAttrEnum.LEFT -> {
                 cursorRectF.mTransX =
                     mAttr.mPaddingLeft + (interval - linelength) / 2 - mAttr.mCursorGap.px - mAttr.mCursorWidth.px

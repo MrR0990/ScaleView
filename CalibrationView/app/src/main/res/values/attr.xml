@@ -29,7 +29,7 @@
             <enum name="circle" value="3" />
         </attr>
 
-        <attr name="cursorLoc">
+        <attr name="cursorSeat">
             <enum name="left" value="4" />
             <enum name="right" value="5" />
             <enum name="top" value="6" />
@@ -37,6 +37,18 @@
             <enum name="inside" value="8" />
             <enum name="outside" value="9" />
         </attr>
+
+        <attr name="scaleTextSeat">
+            <enum name="left" value="4" />
+            <enum name="right" value="5" />
+            <enum name="top" value="6" />
+            <enum name="bottom" value="7" />
+            <enum name="inside" value="8" />
+            <enum name="outside" value="9" />
+        </attr>
+
+        <attr name="scaleTextColor" format="color" />
+        <attr name="scaleTextSize" format="dimension" />
 
         <attr name="cursorWidth" format="dimension" />
 

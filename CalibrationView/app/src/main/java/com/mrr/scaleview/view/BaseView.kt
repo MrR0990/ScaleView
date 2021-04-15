@@ -82,6 +82,7 @@ abstract class BaseView : CursorRectF.ProgressChangeListener {
     var originColorPaint: Paint
     var changeColorPaint: Paint
     var cursorPaint: Paint
+    var textPaint: Paint
 
     constructor(mAttr: ScaleViewAttr) {
         this.mAttr = mAttr
@@ -100,6 +101,7 @@ abstract class BaseView : CursorRectF.ProgressChangeListener {
         originColorPaint = Paint()
         changeColorPaint = Paint()
         cursorPaint = Paint()
+        textPaint = Paint()
         initPaint()
     }
 
@@ -127,6 +129,10 @@ abstract class BaseView : CursorRectF.ProgressChangeListener {
         cursorPaint.isAntiAlias = true
         cursorPaint.style = Paint.Style.STROKE
         cursorPaint.strokeWidth = 1f
+
+        textPaint.isAntiAlias = true
+        textPaint.style = Paint.Style.STROKE
+        textPaint.color = mAttr.mDefaultColor
     }
 
     public override fun progressChange(curAngel: Double) {

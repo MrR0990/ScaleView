@@ -58,12 +58,12 @@ class CursorRectF(var mProgressChangeListener: ProgressChangeListener?) {
         cursorCircleRadius = 0f
 
 
-        if (p.mCursorLoc == ScaleAttrEnum.INSIDE) {
+        if (p.mCursorSeat == ScaleAttrEnum.INSIDE) {
 
             cursorCircleRadius =
                 circleRadius - circleRadius * p.mScaleWidth - diff - p.mCursorWidth.px / 2//游标绘制时候的半径
 
-        } else if (p.mCursorLoc == ScaleAttrEnum.OUTSIDE) {
+        } else if (p.mCursorSeat == ScaleAttrEnum.OUTSIDE) {
 
             cursorCircleRadius =
                 circleRadius - diff + p.mCursorWidth.px / 2//游标绘制时候的半径
@@ -110,11 +110,11 @@ class CursorRectF(var mProgressChangeListener: ProgressChangeListener?) {
         mTransY = mRoutateCenterY - p.mCursorWidth.px / 2
 
 
-        if (p.mCursorLoc == ScaleAttrEnum.INSIDE) {
+        if (p.mCursorSeat == ScaleAttrEnum.INSIDE) {
 
             mRoutateDegress = Math.toDegrees(angle - Math.PI / 2).toFloat()
 
-        } else if (p.mCursorLoc == ScaleAttrEnum.OUTSIDE) {
+        } else if (p.mCursorSeat == ScaleAttrEnum.OUTSIDE) {
 
             mRoutateDegress = Math.toDegrees(angle + Math.PI / 2).toFloat()
         }

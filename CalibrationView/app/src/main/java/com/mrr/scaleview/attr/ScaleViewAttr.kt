@@ -54,7 +54,9 @@ class ScaleViewAttr {
      * OUTSIDE:圆形刻度的外侧
      *
      */
-    var mCursorLoc = ScaleAttrEnum.NONE
+    var mCursorSeat = ScaleAttrEnum.NONE
+
+    var mScaleTextSeat = ScaleAttrEnum.NONE
 
     /**
      * 游标的宽度
@@ -102,7 +104,7 @@ class ScaleViewAttr {
         viewAttr.mScaleNodeWidth = this.mScaleNodeWidth
         viewAttr.mScaleStyle = this.mScaleStyle
         viewAttr.mScaleDirect = this.mScaleDirect
-        viewAttr.mCursorLoc = this.mCursorLoc
+        viewAttr.mCursorSeat = this.mCursorSeat
         viewAttr.mCursorWidth = this.mCursorWidth
         viewAttr.mCursorGap = this.mCursorGap
         viewAttr.mTotalProgress = this.mTotalProgress

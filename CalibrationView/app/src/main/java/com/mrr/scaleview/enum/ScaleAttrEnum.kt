@@ -5,6 +5,8 @@ package com.mrr.scaleview.enum
  */
 enum class ScaleAttrEnum(val value: Int) {
 
+    NONE(-1),
+
     /**
      * 线性刻度使用,是横向绘制还是竖向绘制
      */
@@ -36,8 +38,6 @@ enum class ScaleAttrEnum(val value: Int) {
     BOTTOM(7),
     INSIDE(8),
     OUTSIDE(9),
-    NONE(10),
-
 
     /**
      * 线性刻度方向
@@ -51,5 +51,34 @@ enum class ScaleAttrEnum(val value: Int) {
      * 圆形刻度方向
      */
     CLOCK_WISE(15),
-    COUNTER_CLOCKWISE(16)
+    COUNTER_CLOCKWISE(16);
+
+
+    companion object {// 包裹范围内 属于静态方法
+
+        fun get(value: Int): ScaleAttrEnum {
+            when (value) {
+                NONE.value -> return NONE
+                HORIZONTAL.value -> return HORIZONTAL
+                VERTICAL.value -> return VERTICAL
+                LINE.value -> return LINE
+                CIRCLE.value -> return CIRCLE
+                LEFT.value -> return LEFT
+                RIGHT.value -> return RIGHT
+                TOP.value -> return TOP
+                BOTTOM.value -> return BOTTOM
+                INSIDE.value -> return INSIDE
+                OUTSIDE.value -> return OUTSIDE
+                LEFT_TO_RIGHT.value -> return LEFT_TO_RIGHT
+                RIGHT_TO_LEFT.value -> return RIGHT_TO_LEFT
+                TOP_TO_BOTTOM.value -> return TOP_TO_BOTTOM
+                BOTTOM_TO_TOP.value -> return BOTTOM_TO_TOP
+                CLOCK_WISE.value -> return CLOCK_WISE
+                COUNTER_CLOCKWISE.value -> return COUNTER_CLOCKWISE
+            }
+            return NONE
+        }
+    }
+
+
 }

@@ -63,22 +63,21 @@ class ScaleView : View {
         }
 
         var style = typeArray!!.getInt(R.styleable.ScaleView_scaleStyle, -1)
-
-        if (style > 0) {
-            setCalibrationStyle(style)
-        }
+        mParam.mScaleStyle =
+            ScaleAttrEnum.get(style)
 
         var direct =
             typeArray!!.getInt(R.styleable.ScaleView_scaleDirect, -1)
-        if (direct > 0) {
-            setCalibrationDirect(direct)
-        }
+        mParam.mScaleDirect = ScaleAttrEnum.get(direct)
 
-        var cursorLoc =
-            typeArray!!.getInt(R.styleable.ScaleView_cursorLoc, -1)
-        if (cursorLoc > 0) {
-            setCursorLoc(cursorLoc)
-        }
+
+        var cursorSeat =
+            typeArray!!.getInt(R.styleable.ScaleView_cursorSeat, -1)
+        mParam.mCursorSeat = ScaleAttrEnum.get(cursorSeat)
+
+        var scaleTextSeat =
+            typeArray!!.getInt(R.styleable.ScaleView_scaleTextSeat, -1)
+        mParam.mScaleTextSeat = ScaleAttrEnum.get(scaleTextSeat)
 
         mParam.mCursorWidth =
             typeArray!!.getDimension(R.styleable.ScaleView_cursorWidth, 20f)
@@ -181,55 +180,6 @@ class ScaleView : View {
         invalidate()
 
         return true
-    }
-
-
-    fun setCalibrationStyle(style: Int) {
-        when (style) {
-            ScaleAttrEnum.LINE.value -> {
-                mParam.mScaleStyle = ScaleAttrEnum.LINE
-            }
-            ScaleAttrEnum.CIRCLE.value -> {
-                mParam.mScaleStyle = ScaleAttrEnum.CIRCLE
-            }
-        }
-
-    }
-
-    fun setCalibrationDirect(direct: Int) {
-        when (direct) {
-            ScaleAttrEnum.HORIZONTAL.value -> {
-                mParam.mScaleDirect = ScaleAttrEnum.HORIZONTAL
-            }
-            ScaleAttrEnum.VERTICAL.value -> {
-                mParam.mScaleDirect = ScaleAttrEnum.VERTICAL
-            }
-        }
-
-    }
-
-    fun setCursorLoc(loc: Int) {
-        when (loc) {
-            ScaleAttrEnum.LEFT.value -> {
-                mParam.mCursorLoc = ScaleAttrEnum.LEFT
-            }
-            ScaleAttrEnum.RIGHT.value -> {
-                mParam.mCursorLoc = ScaleAttrEnum.RIGHT
-            }
-            ScaleAttrEnum.TOP.value -> {
-                mParam.mCursorLoc = ScaleAttrEnum.TOP
-            }
-            ScaleAttrEnum.BOTTOM.value -> {
-                mParam.mCursorLoc = ScaleAttrEnum.BOTTOM
-            }
-            ScaleAttrEnum.INSIDE.value -> {
-                mParam.mCursorLoc = ScaleAttrEnum.INSIDE
-            }
-            ScaleAttrEnum.OUTSIDE.value -> {
-                mParam.mCursorLoc = ScaleAttrEnum.OUTSIDE
-            }
-        }
-
     }
 
 
