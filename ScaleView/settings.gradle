@@ -1,2 +1,3 @@
+include ':libScaleView'
 include ':app'
 rootProject.name = "ScaleView"
