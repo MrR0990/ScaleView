@@ -88,6 +88,22 @@ class Builder {
         return this
     }
 
+
+    fun setScaleTextColor(var1: Int): Builder {
+        p.mScaleTextColor = var1
+        return this
+    }
+
+    fun setScaleTextSize(var1: Float): Builder {
+        p.mScaleTextSize = var1
+        return this
+    }
+
+    fun setScaleTextGap(var1: Float): Builder {
+        p.mScaleTextGap = var1
+        return this
+    }
+
     fun create(): ScaleView {
         val view = ScaleView(p.context);
         p.apply(view.mAttr)

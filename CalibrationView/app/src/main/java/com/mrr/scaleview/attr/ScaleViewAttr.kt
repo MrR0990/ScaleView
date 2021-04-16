@@ -81,7 +81,7 @@ class ScaleViewAttr {
     /**
      * 单位刻度,主要是用来控制节点刻度
      */
-    var mUnitScale = 10
+    var mUnitScale = 1
 
     /**
      * 刻度默认颜色
@@ -184,6 +184,13 @@ class ScaleViewAttr {
         viewAttr.mProgressColor = this.mProgressColor
         viewAttr.mScaleMarkSize = this.mScaleMarkSize
         viewAttr.mCursorBitmap = this.mCursorBitmap
+        viewAttr.mScaleTextColor = this.mScaleTextColor
+        viewAttr.mScaleTextSize = this.mScaleTextSize
+        viewAttr.mScaleTextGap = this.mScaleTextGap
+
+
+
+
         viewAttr.mProgressListener = this.mProgressListener
     }
 

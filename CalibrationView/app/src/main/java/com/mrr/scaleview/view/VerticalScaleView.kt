@@ -77,10 +77,6 @@ class VerticalScaleView : BaseScaleView {
         startY = mAttr.mPaddingTop + halfCalibration
         stopY = startY
 
-        Log.d(
-            TAG,
-            "VERTICAL drawLineScale: startY $startY mPaddingTop ${mAttr.mPaddingTop} mHalfCalibration $halfCalibration"
-        )
 
         for (index in 0..mAttr.mTotalProgress) {
 
@@ -95,7 +91,7 @@ class VerticalScaleView : BaseScaleView {
 
             if ((index % mAttr.mUnitScale == 0)) {
 
-                letter = (index / mAttr.mUnitScale).toString()
+                letter = index.toString()
                 scaleTextRectF?.initLineTextSeat(letter, this)
 
                 if (scaleTextRectF?.init == true) {
