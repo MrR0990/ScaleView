@@ -8,6 +8,7 @@
     tools:context=".MainActivity">
 
     <com.mrr.scaleview.ScaleView
+        android:id="@+id/horizontalScaleView"
         android:layout_width="320dp"
         android:layout_height="70dp"
         android:paddingLeft="20dp"
@@ -55,6 +56,7 @@
         app:scaleTextSize="5sp" />
 
     <com.mrr.scaleview.ScaleView
+        android:id="@+id/circleScaleView"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:padding="20dp"
@@ -105,6 +107,7 @@
         app:unitScale="10" />
 
     <com.mrr.scaleview.ScaleView
+        android:id="@+id/verticalScaleView"
         android:layout_width="70dp"
         android:layout_height="420dp"
         android:paddingLeft="20dp"

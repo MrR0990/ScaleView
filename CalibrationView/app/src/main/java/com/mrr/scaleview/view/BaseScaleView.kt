@@ -3,17 +3,20 @@ package com.mrr.scaleview.view
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Paint
-import android.graphics.Paint.FontMetricsInt
 import android.graphics.RectF
+import com.mrr.scaleview.ScaleView
 import com.mrr.scaleview.attr.ScaleViewAttr
 import com.mrr.scaleview.rectf.CursorRectF
 import com.mrr.scaleview.util.UnitConversion.Companion.px
 import com.mrr.scaleview.util.UnitConversion.Companion.sp2px
 import java.util.function.Consumer
 
-abstract class BaseScaleView : CursorRectF.ProgressChangeListener {
+abstract class BaseScaleView : CursorRectF.AngelChangeListener, ScaleView.ProgressChangeListener {
 
     var mAttr: ScaleViewAttr
+
+    var mProgressChangeListener: ScaleView.ProgressChangeListener? = null
+
 
     /**
      * 刻度线一半的宽度
@@ -141,7 +144,11 @@ abstract class BaseScaleView : CursorRectF.ProgressChangeListener {
         textPaint.textSize = mAttr.mScaleTextSize.sp2px
     }
 
-    public override fun progressChange(curAngel: Double) {
+    override fun angelChange(curAngel: Double) {
         TODO("Not yet implemented")
+    }
+
+    override fun progressChange(progress: Float) {
+        mProgressChangeListener?.progressChange(progress)
     }
 }

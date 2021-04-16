@@ -22,6 +22,15 @@ class ScaleView : View {
 
     lateinit var mScaleView: BaseScaleView
 
+    var mProgressChangeListener: ProgressChangeListener? = null
+        set(value) {
+
+            if (this::mScaleView.isInitialized) {
+                mScaleView?.mProgressChangeListener = value
+            }
+
+        }
+
     /**
      * 是否已经初始化画笔
      */
@@ -46,6 +55,19 @@ class ScaleView : View {
         this.mContext = context
         var typeArray = context?.obtainStyledAttributes(attrs, R.styleable.ScaleView)
         mAttr.initAttr(typeArray, mContext)
+
+        when {
+            (mAttr.mScaleStyle == ScaleAttrEnum.LINE && mAttr.mScaleDirect == ScaleAttrEnum.VERTICAL) -> {
+                mScaleView = VerticalScaleView(mAttr)
+            }
+            (mAttr.mScaleStyle == ScaleAttrEnum.LINE && mAttr.mScaleDirect == ScaleAttrEnum.HORIZONTAL) -> {
+                mScaleView = HorizontalScaleView(mAttr)
+            }
+            (mAttr.mScaleStyle == ScaleAttrEnum.CIRCLE) -> {
+                mScaleView = CircleScaleView(mAttr)
+            }
+        }
+        
         typeArray?.recycle()
     }
 
@@ -71,17 +93,6 @@ class ScaleView : View {
         mAttr.mPaddingBottom = mPaddingBottom
 
 
-        when {
-            (mAttr.mScaleStyle == ScaleAttrEnum.LINE && mAttr.mScaleDirect == ScaleAttrEnum.VERTICAL) -> {
-                mScaleView = VerticalScaleView(mAttr)
-            }
-            (mAttr.mScaleStyle == ScaleAttrEnum.LINE && mAttr.mScaleDirect == ScaleAttrEnum.HORIZONTAL) -> {
-                mScaleView = HorizontalScaleView(mAttr)
-            }
-            (mAttr.mScaleStyle == ScaleAttrEnum.CIRCLE) -> {
-                mScaleView = CircleScaleView(mAttr)
-            }
-        }
 
         mScaleView.onMeasure(widthMeasureSpec, heightMeasureSpec)
         mScaleView.initTouchXY(
@@ -131,5 +142,8 @@ class ScaleView : View {
         return true
     }
 
+    interface ProgressChangeListener {
 
+        fun progressChange(progress: Float)
+    }
 }

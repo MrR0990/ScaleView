@@ -8,7 +8,7 @@ import com.mrr.scaleview.util.UnitConversion.Companion.px
 /**
  * 游标方位属性
  */
-class CursorRectF(var mProgressChangeListener: ProgressChangeListener?) {
+class CursorRectF(var mAngelChangeListener: AngelChangeListener?) {
 
     private val TAG = "CursorRectF"
 
@@ -120,12 +120,12 @@ class CursorRectF(var mProgressChangeListener: ProgressChangeListener?) {
         }
 
 
-        mProgressChangeListener?.progressChange(angle)
+        mAngelChangeListener?.angelChange(angle)
     }
 
-    public interface ProgressChangeListener {
+    interface AngelChangeListener {
 
-        fun progressChange(curAngel: Double)
+        fun angelChange(curAngel: Double)
     }
 
 }

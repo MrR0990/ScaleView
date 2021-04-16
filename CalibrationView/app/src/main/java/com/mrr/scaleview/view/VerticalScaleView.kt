@@ -47,6 +47,7 @@ class VerticalScaleView : BaseScaleView {
         clipRect?.set(0f, 0f, mAttr.mWidth, touchY)
         drawLineScale(canvas, changeColorPaint, clipRect)
 
+        progressChange(mAttr.mTotalProgress * (touchY - mAttr.mPaddingTop) / drawSpace)
         clipRect?.set(0f, touchY, mAttr.mWidth, mAttr.mHeight)
 
         drawLineScale(canvas, originColorPaint, clipRect)

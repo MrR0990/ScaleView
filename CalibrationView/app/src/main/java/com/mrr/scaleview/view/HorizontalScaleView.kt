@@ -42,6 +42,7 @@ class HorizontalScaleView : BaseScaleView {
 
         clipRect?.set(0f, 0f, touchX, mAttr.mHeight)
         drawLineScale(canvas, changeColorPaint, clipRect)
+        progressChange(mAttr.mTotalProgress * (touchX - mAttr.mPaddingLeft) / drawSpace)
 
         clipRect?.set(touchX, 0f, mAttr.mWidth, mAttr.mHeight)
 

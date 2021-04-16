@@ -2,6 +2,7 @@ package com.mrr.scaleview.view
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.util.Log
 import com.mrr.scaleview.attr.ScaleViewAttr
 import com.mrr.scaleview.enum.ScaleAttrEnum
 import com.mrr.scaleview.rectf.ScaleTextRectF
@@ -9,6 +10,8 @@ import com.mrr.scaleview.util.UnitConversion.Companion.px
 import java.util.function.Consumer
 
 class CircleScaleView : BaseScaleView {
+
+    private val TAG = "CircleScaleView"
 
     private var letter = ""
     private var lengthDiff = 0f
@@ -42,6 +45,8 @@ class CircleScaleView : BaseScaleView {
             changeColorPaint,
             circleProgressAngel
         )
+        progressChange((mAttr.mTotalProgress * circleProgressAngel / (Math.PI * 2)).toFloat())
+
     }
 
 
@@ -154,7 +159,7 @@ class CircleScaleView : BaseScaleView {
 
     }
 
-    override fun progressChange(curAngel: Double) {
+    override fun angelChange(curAngel: Double) {
         circleProgressAngel = curAngel
     }
 
