@@ -104,7 +104,7 @@
         app:scaleTextSize="5sp" />
 ```
 
-#### 示例 2.圆形刻度
+#### 示例 3.圆形刻度
 
 ```xml
       <com.mrr.libscaleview.ScaleView
